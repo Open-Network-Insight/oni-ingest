@@ -33,7 +33,7 @@ If you want to validate that the topic was created:
 ### Installing and Running
 **NOTE:** All the nodes where the Ingest Framework is going to be installed, need to have [HDFS getway](https://hadoop.apache.org/docs/r2.4.1/hadoop-project-dist/hadoop-hdfs/HdfsNfsGateway.html) configured (i.e. Edge Server)
 
-   git clone https://github.com/Open-Network-Insight/oni-ingest.git
+     git clone https://github.com/Open-Network-Insight/oni-ingest.git
    
 **Standalone:**
 
@@ -41,15 +41,11 @@ If you want to validate that the topic was created:
 
 **Cluster:**
 
-Running Master:
-
-Master needs to be run in the same server where the collector path is.
+**Running Master:** Master needs to be run in the same server where the collector path is.
 
     python master.py -t "data type (i.e. flow)" -w "number of workers"
     
-Running Workers
-
-Worker needs to be executed in a server where processing program is installed (i.e. nfdump), also the worker needs to be identified with a specific id, this id needs to start with 0.
+**Running Workers:** Worker needs to be executed in a server where processing program is installed (i.e. nfdump), also the worker needs to be identified with a specific id, this id needs to start with 0.
 
 example:
 
