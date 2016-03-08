@@ -6,14 +6,14 @@ import subprocess
 
 from oni.utils import Util
 
-class dns_ingest(object):
+class ingest(object):
 
+    def __init__(self,conf):
 
-	def __init__(self,conf):
+        #self._initialize_members(conf)
+        print conf
 
-		self._initialize_members(conf)
-
-	def _initialize_members(self,conf):
+    def _initialize_members(self,conf):
 
 		self._collector_path = None
 		self._hdfs_root_path = None
@@ -39,43 +39,42 @@ class dns_ingest(object):
                 self._pcap_split_staging = conf['pcap_split_staging']
                 self._queue_name = conf['queue_name']
 
-	def start(self):
+    def start(self):
 
 		# process pcap files in collector path.
 		while True:
-			for currdir, subdir,files in os.walk(self._collector_path):
-				for file in files:
-					if file.endswith('.pcap'):
-						file_full_path = os.path.join(currdir,file)
-                                                self._process_pcap_file(file,file_full_path,self._hdfs_root_path)
-			print "Done !!!"
-			time.sleep(self._time_to_wait)
-
+            for currdir, subdir,files in os.walk(self._collector_path):
+                for file in files:
+                    if file.endswith('.pcap'):
+                        file_full_path = os.path.join(currdir,file)
+                        self._process_pcap_file(file,file_full_path,self._hdfs_root_path)
+            print "Done !!!"
+            time.sleep(self._time_to_wait)
 
 	def _process_pcap_file(self,file_name,file_local_path,hdfs_root_path):
 
-		# get timestamp from the file name.
+        # get timestamp from the file name.
 		file_date = file_name.split('.')[0]
-                pcap_hour=file_date[-4:-2]
-                pcap_date_path = file_date[-12:-4]
+        pcap_hour=file_date[-4:-2]
+        pcap_date_path = file_date[-12:-4]
 
 		# hdfs path with timestamp.
-		hdfs_path = "{0}/{1}/{2}".format(hdfs_root_path,pcap_date_path,pcap_hour)
-		Util.creat_hdfs_folder(hdfs_path)
+        hdfs_path = "{0}/{1}/{2}".format(hdfs_root_path,pcap_date_path,pcap_hour)
+        Util.creat_hdfs_folder(hdfs_path)
 
 		# get file size.
-		file_size = os.stat(file_local_path)
-		if file_size.st_size > 1145498644:
+        file_size = os.stat(file_local_path)
+        if file_size.st_size > 1145498644:
 
-			# split file.
-			self._split_pcap_file(file_name,file_local_path,hdfs_path)
-	        else:
-			# load file to hdfs
-            		Util.load_to_hdfs(file_name,file_local_path,hdfs_path)
+            # split file.
+            self._split_pcap_file(file_name,file_local_path,hdfs_path)
+        else:
+            # load file to hdfs
+            Util.load_to_hdfs(file_name,file_local_path,hdfs_path)
 
-			# send rabbitmq notification.
-			hadoop_pcap_file = "{0}/{1}".format(hdfs_path,file_name)
-			Util.send_new_file_notification(hadoop_pcap_file,self._queue_name)
+		# send rabbitmq notification.
+		hadoop_pcap_file = "{0}/{1}".format(hdfs_path,file_name)
+		Util.send_new_file_notification(hadoop_pcap_file,self._queue_name)
 
 
 	def _split_pcap_file(self,file_name,file_local_path,hdfs_path):

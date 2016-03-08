@@ -1,17 +1,20 @@
 {
+    "huser" : "/user/oni",
+    "message_broker":{
+            "ip_server":"132.233.52.121",
+            "port_server":"9092"
+        },
     "dns":{
-            "huser" : "/user/oni",
             "collector_path":"/mnt/sec_shared.nfs/dns",
             "pkt_num":"650000",
             "pcap_split_staging":"/mnt/sec_shared.nfs/dns",
             "time_to_wait":3600,
-            "queue_name":"dns_ingest_queue"
+            "topic":"dns"
         },
         
     "flow":
         {
-            "huser" : "/user/oni",
             "collector_path":"/mnt/sec_shared.nfs/nfcapd",
-            "queue_name":"flow_ingest_queue"
+            "topic":"flow"
         }
 }
