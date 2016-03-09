@@ -9,7 +9,7 @@ import oni.message_broker as Kafka
 
 script_path = os.path.dirname(os.path.abspath(__file__))
 conf_file = "{0}/etc/master_ingest.json".format(script_path)
-ingest_conf = json.loads(open (conf_file).read())
+master_conf = json.loads(open (conf_file).read())
 
 def main():
 
@@ -24,6 +24,10 @@ def main():
 
 def start_collector(type,num_workers):
 
+    if not validate_data_source(type):
+        print "The provided data source type {0} is not a valid".format(type)
+        sys.exit(1)
+
     # validate if kerberos authentication is required.
     if os.getenv('KRB_AUTH'):
         kb = Kerberos()
@@ -33,13 +37,17 @@ def start_collector(type,num_workers):
     module = __import__("oni.{0}.collector".format(type),fromlist=['Collector'])
 
     # create the message broker produer instance
-    ip_server = ingest_conf['message_broker']['ip_server']
-    port_server = ingest_conf['message_broker']['port_server']
+    ip_server = master_conf['message_broker']['ip_server']
+    port_server = master_conf['message_broker']['port_server']
     mb_producer = Kafka.Producer(ip_server,port_server,type,num_workers)
 
     # start collector.
-    ingest_collector = module.Collector(ingest_conf[type],ingest_conf['huser'],mb_producer)
+    ingest_collector = module.Collector(master_conf[type],master_conf['huser'],mb_producer)
     ingest_collector.start()
+
+def validate_data_source(type):
+    is_valid = True if type in master_conf else False
+    return is is_valid
 
 if __name__=='__main__':
     main()

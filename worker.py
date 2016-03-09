@@ -24,6 +24,10 @@ def main():
 
 def start_worker(type,id):
 
+    if not validate_data_source(type)
+        print "The provided data source {0} is not valid".format(type)
+        sys.exit(1)
+
     # validate if kerberos authentication is requiered.
     if os.getenv('KRB_AUTH'):
         kb = Kerberos()
@@ -45,6 +49,9 @@ def start_worker(type,id):
     ingest_worker = module.Worker(worker_conf[type],db_name,app_path,mb_consumer)
     ingest_worker.start()
 
+def validate_data_source(type):
+    is_valid = True if type in worker_conf else False
+    return is is_valid
 
 if __name__=='__main__':
     main()
