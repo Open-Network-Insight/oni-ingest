@@ -52,7 +52,7 @@ example:
 1. worker 1,  id = 0 
 2. worker 2 , id = 1
 
-This Id is required to attach the worker with the kafka partition.
+This "id" is required to attach the worker with the kafka partition.
 
     python worker.py -t "data type (i.e. flow)" -i "id of the worker (starts with 0)"
     
