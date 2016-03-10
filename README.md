@@ -28,7 +28,7 @@ A Kafka topic needs to be created with a specific number of partitions, this par
     
 If you want to validate that the topic was created:
 
-    kafka-topics.sh --zookeeper zookeper_server:port --describe --topic "data type"
+    kafka-topics --zookeeper zookeper_server:port --describe --topic "data type"
 
 ### Installing and Running
 **NOTE:** All the nodes where the Ingest Framework is going to be installed, need to have [HDFS getway](https://hadoop.apache.org/docs/r2.4.1/hadoop-project-dist/hadoop-hdfs/HdfsNfsGateway.html) configured (i.e. Edge Server)
