@@ -7,15 +7,6 @@ import sys
 
 class Kerberos(object):
 
-    self._script_path = None
-    self._conf_file = None
-	self._kerberos_conf = None
-	self._kinit = None
-	self._kinitopts = None
-	self._keytab = None
-	self._krb_user = None
-	self._kinit_args = None
-
     def __init__(self):
 
         self._kinit =  os.getenv('KINITPATH')
