@@ -8,7 +8,7 @@ from oni.kerberos import Kerberos
 import oni.message_broker as Kafka
 
 script_path = os.path.dirname(os.path.abspath(__file__))
-conf_file = "{0}/etc/master_ingest.json".format(script_path)
+conf_file = "{0}/etc/master.json".format(script_path)
 master_conf = json.loads(open (conf_file).read())
 
 def main():
