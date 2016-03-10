@@ -52,5 +52,5 @@ fi
 #-----------------------------------------------------------------------------------
 echo "Background ingest process is running: OniIngest_${INGEST_TYPE}_${INGEST_DATE}"
 echo "To rejoin the session use: screen -x OniIngest_${INGEST_TYPE}_${INGEST_DATE}"
-echo 'To switch between workers and master use: crtl a + shift "'
+echo 'To switch between workers and master use: crtl a + "'
 

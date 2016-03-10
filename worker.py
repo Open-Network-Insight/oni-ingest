@@ -24,7 +24,7 @@ def main():
 
 def start_worker(type,id):
 
-    if not validate_data_source(type)
+    if not validate_data_source(type):
         print "The provided data source {0} is not valid".format(type)
         sys.exit(1)
 
@@ -51,7 +51,7 @@ def start_worker(type,id):
 
 def validate_data_source(type):
     is_valid = True if type in worker_conf else False
-    return is is_valid
+    return is_valid
 
 if __name__=='__main__':
     main()

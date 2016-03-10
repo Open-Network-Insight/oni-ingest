@@ -47,7 +47,7 @@ def start_collector(type,num_workers):
 
 def validate_data_source(type):
     is_valid = True if type in master_conf else False
-    return is is_valid
+    return is_valid
 
 if __name__=='__main__':
     main()

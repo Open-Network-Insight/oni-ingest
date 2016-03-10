@@ -7,21 +7,21 @@ import sys
 
 class Kerberos(object):
 
-	_script_path = None
-	_conf_file = None
-	_kerberos_conf = None
-	_kinit = None
-	_kinitopts = None
-	_keytab = None
-	_krb_user = None
-	_kinit_args = None
+    self._script_path = None
+    self._conf_file = None
+	self._kerberos_conf = None
+	self._kinit = None
+	self._kinitopts = None
+	self._keytab = None
+	self._krb_user = None
+	self._kinit_args = None
 
-	def __init__(self):
+    def __init__(self):
 
         self._kinit =  os.getenv('KINITPATH')
-		self._kinitopts =  os.getenv('KINITOPTS')
-		self._keytab =  os.getenv('KEYTABPATH')
-		self._krb_user =  os.getenv('KRB_USER')
+        self._kinitopts =  os.getenv('KINITOPTS')
+        self._keytab =  os.getenv('KEYTABPATH')
+        self._krb_user =  os.getenv('KRB_USER')
 
         if self._kinit == None or self._kinitopts == None or self._keytab == None or self._krb_user == None:
             print "Please verify kerberos configuration, some environment variables are missing."
