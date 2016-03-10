@@ -42,7 +42,7 @@ if [ $WORKERS_NUM -gt 0 ]; then
 	w=0
     while [  $w -le  $((WORKERS_NUM-1)) ]; 
 	do
-		screen -dr OniIngest_${INGEST_TYPE}_${INGEST_DATE}  -X screen -t Worker_$w sh -c "python worker.py -t ${INGEST_TYPE}; echo 'Closing worker...'; sleep 120"
+		screen -dr OniIngest_${INGEST_TYPE}_${INGEST_DATE}  -X screen -t Worker_$w sh -c "python worker.py -t ${INGEST_TYPE} -i ${w} ; echo 'Closing worker...'; sleep 120"
 		let w=w+1
 	done
 fi
