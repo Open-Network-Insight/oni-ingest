@@ -90,7 +90,7 @@ class Worker(object):
 
         # remove from local staging.
         rm_local_staging = "rm {0}{1}".format(self._local_staging,file_name)
-        print "Removing local staging files: {0}".format(rm_local_staging)
+        print "Removing files from local staging: {0}".format(rm_local_staging)
         subprocess.call(rm_local_staging,shell=True)
 
         print "File {0} was successfully processed.".format(file_name)
