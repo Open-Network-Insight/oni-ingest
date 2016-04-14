@@ -60,7 +60,7 @@ class Worker(object):
 
 
         # build process cmd.
-        process_cmd = "nfdump_split_date -o csv -r {0}{1} {2} > {0}{1}.csv".format(self._local_staging,file_name,self._process_opt)
+        process_cmd = "nfdump -o csv -r {0}{1} {2} > {0}{1}.csv".format(self._local_staging,file_name,self._process_opt)
         print "Processing file: {0}".format(process_cmd)
         subprocess.call(process_cmd,shell=True)
 
