@@ -77,7 +77,7 @@ class Collector(object):
         print "Sending file to worker number: {0}".format(partition)
         self._mb_producer.create_message(hdfs_file,partition)
 
-        print "File has been successfully moved to: {0}".format(file)
+        print "File has been successfully moved to: {0}".format(partition)
 
 class new_file(FileSystemEventHandler):
 
