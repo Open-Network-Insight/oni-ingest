@@ -36,7 +36,7 @@ def start_collector(type,num_workers):
     # create a collector instance based on data source type.
     module = __import__("oni.{0}.collector".format(type),fromlist=['Collector'])
 
-    # create the message broker produer instance
+    # create the message broker producer instance
     ip_server = master_conf['message_broker']['ip_server']
     port_server = master_conf['message_broker']['port_server']
     mb_producer = Kafka.Producer(ip_server,port_server,type,num_workers)

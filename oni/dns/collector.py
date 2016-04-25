@@ -89,7 +89,7 @@ class Collector(object):
             print hdfs_file
             Util.load_to_hdfs(file,hdfs_file)
 
-            # create event for workiers to process the file.
+            # create event for workers to process the file.
             print "Sending file to worker number: {0}".format(partition)
             self._mb_producer.create_message(hdfs_file,partition)
 
@@ -114,8 +114,8 @@ class Collector(object):
 
   		    hadoop_pcap_file = "{0}/{1}".format(hdfs_path,file)
 		    
-		    # create event for workiers to process the file.
-	    	    print "Sending splitted file to worker number: {0}".format(partition)
+		    # create event for workers to process the file.
+	    	    print "Sending split file to worker number: {0}".format(partition)
                     self._mb_producer.create_message(hadoop_pcap_file,partition)		    
 
        	rm_big_file = "rm {0}".format(file_local_path)
