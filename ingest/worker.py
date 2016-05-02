@@ -133,7 +133,8 @@ def process_new_binary_file(new_file):
 	subprocess.call(rm_tmp,shell=True)
 
 	print datetime.datetime.now()
-
+	print "Done!!!"
+	
 if __name__ == '__main__':
 	main()
 

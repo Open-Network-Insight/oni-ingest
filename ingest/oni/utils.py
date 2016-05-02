@@ -64,12 +64,14 @@ class Util(object):
 			# get file name and date
 			file_name_parts = file.split('/')
 			file_name = file_name_parts[len(file_name_parts)-1]
+			
+			file_date = file_name.split('.')[0]
+			binary_year = file_date[-14:-10]
+			binary_month = file_date[-10:-8]
+			binary_day = file_date[-8:-6]
+			binary_hour = file_date[-6:-4]
+			binary_date_path = file_date[-14:-6]
 
-			binary_hour = file_name_parts[len(file_name_parts)-2]
-			binary_date_path = file_name_parts[len(file_name_parts)-3]
-			binary_year = binary_date_path[0:4]
-			binary_month = binary_date_path[4:6]
-			binary_day = binary_date_path[6:8]
 
 			return binary_year, binary_month, binary_day, binary_hour, binary_date_path, file_name
 

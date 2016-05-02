@@ -42,13 +42,15 @@ class dns_ingest(object):
 	def start(self):
 
 		# process pcap files in collector path.
+		print "Watching the path: {0} to collect files".format(self._collector_path)
 		while True:
 			for currdir, subdir,files in os.walk(self._collector_path):
-				for file in files:
+				for file in files:					
 					if file.endswith('.pcap'):
+						print "New file: {0}".format(file)
 						file_full_path = os.path.join(currdir,file)
                                                 self._process_pcap_file(file,file_full_path,self._hdfs_root_path)
-			print "Done !!!"
+						print "file :{0} processed".format(file)
 			time.sleep(self._time_to_wait)
 
 
@@ -56,11 +58,11 @@ class dns_ingest(object):
 
 		# get timestamp from the file name.
 		file_date = file_name.split('.')[0]
-                pcap_hour=file_date[-4:-2]
-                pcap_date_path = file_date[-12:-4]
+		pcap_hour = file_date[-6:-4]
+		pcap_date_path = file_date[-14:-6]
 
 		# hdfs path with timestamp.
-		hdfs_path = "{0}/{1}/{2}".format(hdfs_root_path,pcap_date_path,pcap_hour)
+		hdfs_path = "{0}/binary/{1}/{2}".format(hdfs_root_path,pcap_date_path,pcap_hour)
 		Util.creat_hdfs_folder(hdfs_path)
 
 		# get file size.
