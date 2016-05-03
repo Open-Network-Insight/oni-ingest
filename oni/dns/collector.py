@@ -89,18 +89,18 @@ class Collector(object):
             print hdfs_file
             Util.load_to_hdfs(file,hdfs_file)
 
-            # create event for workiers to process the file.
+            # create event for workers to process the file.
             print "Sending file to worker number: {0}".format(partition)
             self._mb_producer.create_message(hdfs_file,partition)
 
-        print "File has been successfully moved to: {0}".format(file)
+        print "File has been successfully moved to: {0}".format(partition)
 
     def _split_pcap_file(self,file_name,file_local_path,hdfs_path,partition):
 
 	# split file.
 	name = file_name.split('.')[0]
 	split_cmd="editcap -c {0} {1} {2}/{3}_split.pcap".format(self._pkt_num,file_local_path,self._pcap_split_staging,name)
-	print "Spliting file: {0}".format(split_cmd)
+	print "Splitting file: {0}".format(split_cmd)
 	subprocess.call(split_cmd,shell=True)
 	
 	for currdir,subdir,files in os.walk(self._pcap_split_staging):
@@ -114,8 +114,8 @@ class Collector(object):
 
   		    hadoop_pcap_file = "{0}/{1}".format(hdfs_path,file)
 		    
-		    # create event for workiers to process the file.
-	    	    print "Sending splitted file to worker number: {0}".format(partition)
+		    # create event for workers to process the file.
+	    	    print "Sending split file to worker number: {0}".format(partition)
                     self._mb_producer.create_message(hadoop_pcap_file,partition)		    
 
        	rm_big_file = "rm {0}".format(file_local_path)

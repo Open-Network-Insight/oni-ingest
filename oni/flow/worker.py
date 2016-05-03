@@ -29,7 +29,7 @@ class Worker(object):
 
     def start(self):
 
-        print "Listening server {0}, topic:{1}".format(self._mb_consumer.Server,self._topic)
+        print "Listening to server {0}, topic:{1}".format(self._mb_consumer.Server,self._topic)
         for message in self._mb_consumer.start():
             self._new_file(message.value)
 

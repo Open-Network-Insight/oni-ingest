@@ -15,7 +15,7 @@ def main():
     # input parameters
     parser = argparse.ArgumentParser(description="Worker Ingest Framework")
     parser.add_argument('-t','--type',dest='type',required=True,help='Type of data that will be ingested (e.g. dns, flow)',metavar='')
-    parser.add_argument('-i','--id',dest='id',required=True,help='Worker Id, this is needed to sync Kafka and Ingest framework (Partitino Number)',metavar='')
+    parser.add_argument('-i','--id',dest='id',required=True,help='Worker Id, this is needed to sync Kafka and Ingest framework (Partition Number)',metavar='')
     args = parser.parse_args()
 
     # start worker based on the type.

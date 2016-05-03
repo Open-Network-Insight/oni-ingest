@@ -14,7 +14,7 @@ class Collector(object):
     def _initialize_members(self,conf,app_path,mb_producer):
 
 
-        # valdiate configuration info.
+        # validate configuration info.
         conf_err_msg = "Please provide a valid '{0}' in the configuration file"
         Util.validate_parameter(conf['collector_path'],conf_err_msg.format("collector_path"))
         Util.validate_parameter(conf['topic'],conf_err_msg.format("topic"))
@@ -26,7 +26,7 @@ class Collector(object):
         self._hdfs_root_path = "{0}/{1}".format(app_path, self._dsource)
         self._topic = conf['topic']
 
-        # initialize message borker client.
+        # initialize message broker client.
         self._mb_producer = mb_producer
 
     def start(self):
@@ -73,11 +73,11 @@ class Collector(object):
         hdfs_file = "{0}/{1}".format(hdfs_path,file_name)
         Util.load_to_hdfs(file,hdfs_file)
 
-        # create event for workiers to process the file.
+        # create event for workers to process the file.
         print "Sending file to worker number: {0}".format(partition)
         self._mb_producer.create_message(hdfs_file,partition)
 
-        print "File has been successfully moved to: {0}".format(file)
+        print "File has been successfully moved to: {0}".format(partition)
 
 class new_file(FileSystemEventHandler):
 

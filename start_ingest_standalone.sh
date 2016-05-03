@@ -30,7 +30,7 @@ if [ $INGEST_TYPE != "dns" ] && [ $INGEST_TYPE != "flow"  ]; then
 fi
 
 #-----------------------------------------------------------------------------------
-# Create screens for Mastar and Worker.
+# Create screens for Master and Worker.
 #-----------------------------------------------------------------------------------
 
 INGEST_DATE=`date +"%H_%M_%S"`
