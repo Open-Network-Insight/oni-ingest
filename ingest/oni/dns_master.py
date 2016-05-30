@@ -74,7 +74,10 @@ class dns_ingest(object):
 										
 					# hdfs path with timestamp.
 					hdfs_path = "{0}/binary/{1}/{2}".format(hdfs_root_path,pcap_date_path,pcap_hour)
-										
+						
+					# create hdfs path.
+					Util.creat_hdfs_folder(hdfs_path)
+									
 					# load file to hdfs.
 					Util.load_to_hdfs(file,os.path.join(currdir,file),hdfs_path)
 										
