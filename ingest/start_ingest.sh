@@ -6,6 +6,7 @@
 
 INGEST_TYPE=$1
 WORKER_NUM=${2:-0}
+TIME_ZONE=${3:-UTC}
 
 if [ -z $INGEST_TYPE  ]; then
 
@@ -28,6 +29,7 @@ fi
 INGEST_DATE=`date +"%H_%M_%S"`
 
 screen -d -m -S OniIngest_${INGEST_TYPE}_${INGEST_DATE}  -s /bin/bash
+screen -S OniIngest_${INGEST_TYPE}_${INGEST_DATE} -X setenv TZ ${TIME_ZONE}
 screen -dr  OniIngest_${INGEST_TYPE}_${INGEST_DATE} -X screen -t Master sh -c "python master.py -t ${INGEST_TYPE}; echo 'Closing Master...'; sleep 60"
 
 
