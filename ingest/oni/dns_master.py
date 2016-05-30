@@ -68,7 +68,7 @@ class dns_ingest(object):
 				if file.endswith(".pcap") and "{0}_oni".format(name) in file:
 				
 					# get timestamp from the file name to build hdfs path.
-					file_date = file_name.split('.')[0]
+					file_date = file.split('.')[0]
 					pcap_hour = file_date[-6:-4]
 					pcap_date_path = file_date[-14:-6]
 										
