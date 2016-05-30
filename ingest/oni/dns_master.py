@@ -65,7 +65,7 @@ class dns_ingest(object):
 		#move files to hdfs
 		for currdir,subdir,files in os.walk(self._pcap_split_staging):
 			for file in files:
-				if file.endswith(".pcap") and "{0}_split".format(name) in file:
+				if file.endswith(".pcap") and "{0}_oni".format(name) in file:
 				
 					# get timestamp from the file name to build hdfs path.
 					file_date = file_name.split('.')[0]
