@@ -1,7 +1,7 @@
 
 import sys
 import subprocess
-import oni.message_broker as MB
+import logging
 
 class Util(object):
 
@@ -28,10 +28,30 @@ class Util(object):
         subprocess.call(load_to_hadoop_script,shell=True)
 
     @classmethod
-    def new_message_broker_producer(cls,ip_server,port_server):
-        return MB.Producer(ip_server,port_server)
+    def get_logger(cls,logger_name,create_file=False):
+    		
 
-    @classmethod
-    def new_message_broker_consumer(cls,ip_server,port_server,topic):
-        return MB.Consumer(ip_server,port_server,topic)
+		# create logger for prd_ci
+		log = logging.getLogger(logger_name)
+		log.setLevel(level=logging.INFO)
+		
+		# create formatter and add it to the handlers
+		formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+		
+		if create_file:
+				# create file handler for logger.
+				fh = logging.FileHandler('oni.log')
+				fh.setLevel(level=logging.DEBUG)
+				fh.setFormatter(formatter)
+		# reate console handler for logger.
+		ch = logging.StreamHandler()
+		ch.setLevel(level=logging.DEBUG)
+		ch.setFormatter(formatter)
+
+		# add handlers to logger.
+		if create_file:
+			log.addHandler(fh)
+
+		log.addHandler(ch)
+		return  log
 
