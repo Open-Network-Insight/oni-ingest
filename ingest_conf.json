@@ -1,8 +1,10 @@
 {
     "dbname" : "oni",
     "hdfs_app_path" : "/user/oni",
-    "kafka_server":{
-            "server":"127.0.0.1",
-            "port":"9092"
+    "kafka":{
+            "kafka_server":"10.219.32.100",
+            "kafka_port":"9092",
+            "zookeper_server":"10.219.32.100",
+            "zookeper_port":"2181"
         }
 }

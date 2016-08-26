@@ -1,4 +1,7 @@
 
 {
-    "collector_path":"/Users/elopezsa/Documents/ingest_collector_path/proxy"
+    
+    "collector_path":"/repos/oni-ingest/stage/tmp",
+    "supported_files":["log"]
+    
 }

@@ -1,0 +1,73 @@
+#!/bin/env python 
+import logging
+import os
+from oni.utils import Util
+from kafka import KafkaProducer
+from kafka.partitioner.roundrobin import RoundRobinPartitioner
+from kafka.common import TopicPartition
+
+class KafkaTopic(object):
+
+
+    def __init__(self,topic,server,port,zk_server,zk_port,partitions):
+
+        self._initialize_members(topic,server,port,zk_server,zk_port,partitions)
+
+    def _initialize_members(self,topic,server,port,zk_server,zk_port,partitions):
+
+        # get logger isinstance
+        self._logger = logging.getLogger("ONI.INGEST.KAFKA")
+
+        # kafka requirements
+        self._server = server
+        self._port = port
+        self._zk_server = zk_server
+        self._zk_port = zk_port
+        self._topic = topic
+        self._num_of_partitions = partitions
+        self._partitions = []
+        self._partitioner = None
+
+        # create topic with partitions
+        self._create_topic()
+
+    def _create_topic(self):
+
+        self._logger.info("Creating topic: {0} with {1} parititions".format(self._topic,self._partitions))     
+
+        # Create partitions for the workers.
+        self._partitions = [ TopicPartition(self._topic,p) for p in range(int(self._num_of_partitions))]  
+
+        print "Paritions {0}".format(self._partitions)
+
+        # create partitioner
+        self._partitioner = RoundRobinPartitioner(self._partitions)
+        
+        # get script path 
+        zk_conf = "{0}:{1}".format(self._zk_server,self._zk_port)
+        create_topic_cmd = "{0}/kafka_topic.sh create {1} {2} {3}".format(os.path.dirname(os.path.abspath(__file__)),self._topic,zk_conf,self._num_of_partitions)
+
+        # execute create topic cmd
+       # Util.execute_cmd(create_topic_cmd,self._logger)
+
+    def send_message(self,message,topic_partition=None):
+
+        kafka_brokers = '{0}:{1}'.format(self._server,self._port)             
+        producer = KafkaProducer(bootstrap_servers=[kafka_brokers],api_version_auto_timeout_ms=3600000)
+        future = producer.send(self._topic,message,partition=0)
+        producer.flush()
+        producer.close()
+
+    @property
+    def Topic(self):
+        return self._topic
+    
+    @property
+    def Partition(self):        
+        return self._partitioner.partition(self._topic).partition
+
+
+
+#class KafkaConsumer(object):
+
+    
