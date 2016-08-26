@@ -4,7 +4,7 @@ import argparse
 import os
 import json
 from oni.kerberos import Kerberos
-import oni.message_broker as Kafka
+from oni.kafka_topic import KafkaTopic
 
 script_path = os.path.dirname(os.path.abspath(__file__))
 conf_file = "{0}/etc/worker.json".format(script_path)
@@ -40,13 +40,13 @@ def start_worker(type,id):
     ip_server = worker_conf['message_broker']['ip_server']
     port_server = worker_conf['message_broker']['port_server']
     topic = worker_conf[type]['topic']
-    mb_consumer = Kafka.Consumer(ip_server,port_server,topic,id)
+    kafka_consumer = Kafka.Consumer(ip_server,port_server,topic,id)
 
 
     # start worker.
     db_name = worker_conf['dbname']
     app_path = worker_conf['huser']
-    ingest_worker = module.Worker(worker_conf[type],db_name,app_path,mb_consumer)
+    ingest_worker = module.Worker(worker_conf[type],db_name,app_path,kafka_consumer)
     ingest_worker.start()
 
 def validate_data_source(type):
