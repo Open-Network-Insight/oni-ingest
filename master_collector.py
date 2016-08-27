@@ -33,7 +33,7 @@ def start_collector(type,jobs_num):
     # create logger.
     logger = Util.get_logger("ONI.INGEST")
 
-    if not validate_data_source(type):
+    if not Util.validate_data_source(type):
         logger.error("'{0}' type is not configured.".format(type));
         sys.exit(1)
 
@@ -61,13 +61,6 @@ def start_collector(type,jobs_num):
     # start collector.
     ingest_collector = module.Collector(master_conf['hdfs_app_path'],kafka)
     ingest_collector.start()
-
-def validate_data_source(type):
-
-    # type
-    dirs = os.walk("{0}/pipelines/".format(script_path)).next()[1]
-    is_type_ok = True if type in dirs else False
-    return is_type_ok
 
 if __name__=='__main__':
     main()

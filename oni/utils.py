@@ -1,4 +1,6 @@
+#!/bin/env python
 
+import os
 import sys
 import subprocess
 import logging
@@ -72,7 +74,14 @@ class Util(object):
         except subprocess.CalledProcessError as e:
             logger.error("There was an error executing: {0}".format(e.cmd))
             sys.exit(1)
+
+    @classmethod
+    def validate_data_source(cls,pipeline_type):
+        dirs = os.walk("{0}/pipelines/".format(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))).next()[1]
+        is_type_ok = True if pipeline_type in dirs else False
+        return is_type_ok
         
+
 class NewFileEvent(FileSystemEventHandler):
 
     pipeline_instance = None

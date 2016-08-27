@@ -68,6 +68,25 @@ class KafkaTopic(object):
 
 
 
-#class KafkaConsumer(object):
+class KafkaConsumer(object):
+    
+    def __init__(self,topic,server,port,zk_server,zk_port,partition):
+
+        self._initialize_members(topic,server,port,zk_server,zk_port,partition)
+
+    def _initialize_members(self,topic,server,port,zk_server,zk_port,partition):
+
+        self._topic = topic
+        self._zk_server = zk_server
+        self._zk_port = zk_port
+
+
+    @property
+    def Topic(self):
+        return self._topic
+
+    @property
+    def ZookeperServer(self):
+        return "{0}:{1}".format(self._zk_server,self._zk_port)
 
     
