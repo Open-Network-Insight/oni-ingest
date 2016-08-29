@@ -17,7 +17,7 @@ def main():
 
     # input parameters
     parser = argparse.ArgumentParser(description="Worker Ingest Framework")
-    parser.add_argument('-t','--type',dest='type',required=True,help='Type of data that will be ingested (e.g. dns, flow)',metavar='')
+    parser.add_argument('-t','--type',dest='type',required=True,help='Type of data that will be ingested (e.g. dns, flow, proxy)',metavar='')
     parser.add_argument('-i','--id',dest='id',required=True,help='Worker Id, this is needed to sync Kafka and Ingest framework (Partition Number)',metavar='')
     parser.add_argument('-top','--topic',dest='topic',required=True,help='Topic to read from.',metavar="")
     args = parser.parse_args()
@@ -28,7 +28,7 @@ def main():
 
 def start_worker(type,topic,id):
 
-    logger = Util.get_logger("ONI.INGEST.PROXY")
+    logger = Util.get_logger("ONI.INGEST.WORKER")
 
     if not Util.validate_data_source(type):
         logger.error("The provided data source {0} is not valid".format(type));sys.exit(1)
@@ -53,11 +53,8 @@ def start_worker(type,topic,id):
     zk_port = worker_conf["kafka"]['zookeper_port']
     topic = topic
 
-    #remove this.
-    partition = 0
-
     # create kafka consumer.
-    kafka_consumer = KafkaConsumer(topic,k_server,k_port,zk_server,zk_port,partition)
+    kafka_consumer = KafkaConsumer(topic,k_server,k_port,zk_server,zk_port,id)
 
     # start worker.
     db_name = worker_conf['dbname']

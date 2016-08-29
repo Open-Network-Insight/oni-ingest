@@ -19,13 +19,13 @@ def main():
     # input Parameters
     parser = argparse.ArgumentParser(description="Master Collector Ingest Daemon")
     parser.add_argument('-t','--type',dest='type',required=True,help='Type of data that will be ingested (e.g. dns, flow, proxy)',metavar='')
-    parser.add_argument('-j','--jobs',dest='jobs_num',required=True,help='Number of jobs for the ingest process',metavar='')
+    parser.add_argument('-w','--workers',dest='workers_num',required=True,help='Number of workers for the ingest process',metavar='')
     args = parser.parse_args()
 
     # start collector based on data source type.
-    start_collector(args.type,args.jobs_num)
+    start_collector(args.type,args.workers_num)
 
-def start_collector(type,jobs_num):
+def start_collector(type,workers_num):
 
     # generate ingest id
     ingest_id = str(datetime.datetime.time(datetime.datetime.now())).replace(":","_").replace(".","_")   
@@ -52,7 +52,7 @@ def start_collector(type,jobs_num):
     zk_port = master_conf["kafka"]['zookeper_port']
 
     topic = "{0}_{1}".format(type,ingest_id)    
-    kafka = KafkaTopic(topic,k_server,k_port,zk_server,zk_port,jobs_num)
+    kafka = KafkaTopic(topic,k_server,k_port,zk_server,zk_port,workers_num)
 
     # create a collector instance based on data source type.
     logger.info("Starting {0} ingest instance".format(type))
