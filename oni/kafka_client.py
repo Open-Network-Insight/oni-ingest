@@ -3,6 +3,7 @@ import logging
 import os
 from oni.utils import Util
 from kafka import KafkaProducer
+from kafka import KafkaConsumer as KC
 from kafka.partitioner.roundrobin import RoundRobinPartitioner
 from kafka.common import TopicPartition
 
@@ -75,6 +76,8 @@ class KafkaConsumer(object):
     def _initialize_members(self,topic,server,port,zk_server,zk_port,partition):
 
         self._topic = topic
+        self._server = server
+        self._port = port
         self._zk_server = zk_server
         self._zk_port = zk_port
         self._id = partition
@@ -82,7 +85,7 @@ class KafkaConsumer(object):
     def start(self):
         
         kafka_brokers = '{0}:{1}'.format(self._server,self._port)
-        consumer =  KafkaConsumer(bootstrap_servers=[kafka_brokers],group_id=self._topic)
+        consumer =  KC(bootstrap_servers=[kafka_brokers],group_id=self._topic)
         partition = [TopicPartition(self._topic,int(self._id))]
         consumer.assign(partitions=partition)
         consumer.poll()

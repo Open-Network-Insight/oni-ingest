@@ -70,7 +70,7 @@ class Util(object):
         
         try:
             logger.info("oni.Utils: Executing: {0}".format(command))
-            subprocess.check_output(command,shell=True)
+            subprocess.call(command,shell=True)
 
         except subprocess.CalledProcessError as e:
             logger.error("oni.Utils: There was an error executing: {0}".format(e.cmd))
