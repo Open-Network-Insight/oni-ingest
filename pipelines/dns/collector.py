@@ -98,27 +98,26 @@ class Collector(object):
 
     def _split_pcap_file(self,file_name,file_local_path,hdfs_path,partition):
 
-	# split file.
-	name = file_name.split('.')[0]
-	split_cmd="editcap -c {0} {1} {2}/{3}_split.pcap".format(self._pkt_num,file_local_path,self._pcap_split_staging,name)
-	self._logger.info("Splitting file: {0}".format(split_cmd))
-	Util.execute_cmd(split_cmd,self._logger)
+		# split file.
+		name = file_name.split('.')[0]
+		split_cmd="editcap -c {0} {1} {2}/{3}_split.pcap".format(self._pkt_num,file_local_path,self._pcap_split_staging,name)
+		self._logger.info("Splitting file: {0}".format(split_cmd))
+		Util.execute_cmd(split_cmd,self._logger)
 
-	for currdir,subdir,files in os.walk(self._pcap_split_staging):
-		for file in files:
-			if file.endswith(".pcap") and "{0}_split".format(name) in file:
+		for currdir,subdir,files in os.walk(self._pcap_split_staging):
+			for file in files:
+				if file.endswith(".pcap") and "{0}_split".format(name) in file:
   		        	# load file to hdfs.
-		            	local_file = "{0}/{1}".format(self._pcap_split_staging,file)		    
-		            	hdfs_file = "{0}/{1}".format(hdfs_path,file)	
-		            	Util.load_to_hdfs(local_file, hdfs_fie,self._logger)
-
-  		            	hadoop_pcap_file = "{0}/{1}".format(hdfs_path,file)
+		            local_file = "{0}/{1}".format(self._pcap_split_staging,file)		    
+		            hdfs_file = "{0}/{1}".format(hdfs_path,file)	
+		            Util.load_to_hdfs(local_file, hdfs_fie,self._logger)
+	            	hadoop_pcap_file = "{0}/{1}".format(hdfs_path,file)
 		    
-		            	# create event for workers to process the file.
-	    	        	self._logger.info( "Sending split file to worker number: {0}".format(partition))
-	    	        	self._kafka_topic.send_message(hadoop_pcap_file,partition)		    
+	            	# create event for workers to process the file.
+    	        	self._logger.info( "Sending split file to worker number: {0}".format(partition))
+    	        	self._kafka_topic.send_message(hadoop_pcap_file,partition)		    
 
-       	rm_big_file = "rm {0}".format(file_local_path)
-	self._logger.info("Removing file: {0}".format(rm_big_file))
-	Util.execute_cmd(rm_big_file,self._logger)
+		rm_big_file = "rm {0}".format(file_local_path)
+		self._logger.info("Removing file: {0}".format(rm_big_file))
+		Util.execute_cmd(rm_big_file,self._logger)
 
