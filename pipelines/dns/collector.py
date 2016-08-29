@@ -6,7 +6,7 @@ import subprocess
 import json
 import logging
 from multiprocessing import Process
-from oni.utils import Util
+from oni.utils import Util, NewFileEvent
 
 class Collector(object):
 
@@ -34,11 +34,14 @@ class Collector(object):
         self._hdfs_root_path = "{0}/{1}".format(hdfs_app_path, self._dsource) 
 
         # set configuration.
-        self._pkt_num = conf['pkt_num']
-        self._pcap_split_staging = conf['pcap_split_staging']        
+        self._pkt_num = self._conf['pkt_num']
+        self._pcap_split_staging = self._conf['pcap_split_staging']        
 
         # initialize message broker client.
         self.kafka_topic = kafka_topic
+
+        # create collector watcher
+        self._watcher =  Util.create_wathcher(self._collector_path,NewFileEvent(self),self._logger)
 
     def start(self):
             
