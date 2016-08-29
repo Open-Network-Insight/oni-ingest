@@ -4,8 +4,6 @@ import time
 import logging
 import os
 import json
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
 from multiprocessing import Process
 from oni.utils import Util, NewFileEvent
 
@@ -26,7 +24,7 @@ class Collector(object):
         # get script path 
         self._script_path = os.path.dirname(os.path.abspath(__file__))
 
-        # read proxy configuration.
+        # read flow configuration.
         conf_file = "{0}/flow_conf.json".format(self._script_path)
         self._conf = json.loads(open(conf_file).read())
 
