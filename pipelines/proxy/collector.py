@@ -33,7 +33,7 @@ class Collector(object):
         self._collector_path = self._conf['collector_path']
 
         # create collector watcher
-        self._watcher =  Util.create_wathcher(self._collector_path,NewFileEvent(self))
+        self._watcher =  Util.create_wathcher(self._collector_path,NewFileEvent(self),self._logger)
 
     def start(self):
         
