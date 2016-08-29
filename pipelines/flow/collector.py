@@ -1,61 +1,73 @@
 #!/bin/env python
 
 import time
+import logging
+import os
+import json
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from multiprocessing import Process
-from oni.utils import Util
+from oni.utils import Util, NewFileEvent
+
 
 class Collector(object):
 
-    def __init__(self,conf,app_path,mb_producer):
-        self._initialize_members(conf,app_path,mb_producer)
+    def __init__(self,hdfs_app_path,kafka_topic):
+        
+        self._initialize_members(hdfs_app_path,kafka_topic)
 
-    def _initialize_members(self,conf,app_path,mb_producer):
+    def _initialize_members(self,hdfs_app_path,kafka_topic):
+  
+        # getting parameters.
+        self._logger = logging.getLogger('ONI.INGEST.FLOW')
+        self._hdfs_app_path = hdfs_app_path
+        self._kafka_topic = kafka_topic
 
+        # get script path 
+        self._script_path = os.path.dirname(os.path.abspath(__file__))
 
-        # validate configuration info.
-        conf_err_msg = "Please provide a valid '{0}' in the configuration file"
-        Util.validate_parameter(conf['collector_path'],conf_err_msg.format("collector_path"))
-        Util.validate_parameter(conf['topic'],conf_err_msg.format("topic"))
-        Util.validate_parameter(app_path,conf_err_msg.format("huser"))
+        # read proxy configuration.
+        conf_file = "{0}/flow_conf.json".format(self._script_path)
+        self._conf = json.loads(open(conf_file).read())
 
         # set configuration.
-        self._collector_path = conf['collector_path']
+        self._collector_path = self._conf['collector_path']
         self._dsource = 'flow'
-        self._hdfs_root_path = "{0}/{1}".format(app_path, self._dsource)
-        self._topic = conf['topic']
+        self._hdfs_root_path = "{0}/{1}".format(hdfs_app_path, self._dsource)        
 
         # initialize message broker client.
-        self._mb_producer = mb_producer
+        self.kafka_topic = kafka_topic
+
+        # create collector watcher
+        self._watcher =  Util.create_wathcher(self._collector_path,NewFileEvent(self),self._logger)
 
     def start(self):
-
-        # start watchdog
-        print "Watching path: {0} to collect files".format(self._collector_path)
-        event_handler = new_file(self)
-        observer = Observer()
-        observer.schedule(event_handler,self._collector_path)
-        observer.start()
+        
+        self._logger.info("Starting FLOW ingest")
+        self._logger.info("Watching: {0}".format(self._collector_path))    
+        self._watcher.start()
 
         try:
             while True:
                 time.sleep(1)
         except KeyboardInterrupt:
-            observer.stop()
-            observer.join()
+            self._logger.info("Stopping FLOW collector...")
+            self._watcher.stop()
+            self._watcher.join()
 
-    def load_new_file(self,file):
+    def new_file_detected(self,file):
 
-        # create new process for the new file.
-        print "---------------------------------------------------------------------------"
-        print "New File received: {0}".format(file)
+        self._logger.info("-------------------------------------- New File detected --------------------------------------")        
+        self._logger.info("File: {0}".format(file))
+
+        # validate file extension.
         if not  ".current" in file:
-            p = Process(target=self._ingest_file, args=(file,self._mb_producer.Partition))
-            p.start()
-            p.join()
+            
+            self._logger.info("Sending new file to kafka; topic: {0}".format(self._kafka_topic.Topic))
+            p = Process(target=self._ingest_file,args=(file,))
+            p.start()     
 
-    def _ingest_file(self,file,partition):
+    def _ingest_file(self,file):
 
         # get file name and date.
         file_name_parts = file.split('/')
@@ -66,29 +78,17 @@ class Collector(object):
         file_date_hour = file_date[8:10]
 
         # hdfs path with timestamp.
-        hdfs_path = "{0}/binary/{1}/{2}".format(self._hdfs_root_path,file_date_path,file_date_hour)
-        Util.creat_hdfs_folder(hdfs_path)
+        hdfs_path = "{0}/binary/{1}/{2}".format(self._hdfs_root_path,file_date_path,file_date_hour)        
+        Util.creat_hdfs_folder(hdfs_path,self._logger)
 
         # load to hdfs.
-        hdfs_file = "{0}/{1}".format(hdfs_path,file_name)
-        Util.load_to_hdfs(file,hdfs_file)
+        hdfs_file = "{0}/{1}".format(hdfs_path,file_name)        
+        Util.load_to_hdfs(file,hdfs_file,self._logger)
 
         # create event for workers to process the file.
-        print "Sending file to worker number: {0}".format(partition)
-        self._mb_producer.create_message(hdfs_file,partition)
+        partition = self._kafka_topic.Partition
+        self._logger.info("Sending file to worker number: {0}".format(partition))
+        self.kafka_topic.send_message(hdfs_file,partition)
 
-        print "File has been successfully moved to: {0}".format(partition)
-
-class new_file(FileSystemEventHandler):
-
-    _flow_instance = None
-    def __init__(self,flow_class):
-        self._flow_instance = flow_class
-
-    def on_moved(self,event):
-        if not event.is_directory:
-            self._flow_instance.load_new_file(event.dest_path)
-
-    def on_created(self,event):
-        if not event.is_directory:
-            self._flow_instance.load_new_file(event.src_path)
+        self._logger.info("File {0} has been successfully sent to Kafka Topic to: {1}".format(file,self._kafka_topic.Topic))
+        

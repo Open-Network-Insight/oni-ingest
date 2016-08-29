@@ -33,12 +33,10 @@ class KafkaTopic(object):
 
     def _create_topic(self):
 
-        self._logger.info("Creating topic: {0} with {1} parititions".format(self._topic,self._partitions))     
+        self._logger.info("Creating topic: {0} with {1} parititions".format(self._topic,self._num_of_partitions))     
 
         # Create partitions for the workers.
-        self._partitions = [ TopicPartition(self._topic,p) for p in range(int(self._num_of_partitions))]  
-
-        print "Paritions {0}".format(self._partitions)
+        self._partitions = [ TopicPartition(self._topic,p) for p in range(int(self._num_of_partitions))]        
 
         # create partitioner
         self._partitioner = RoundRobinPartitioner(self._partitions)
@@ -48,7 +46,7 @@ class KafkaTopic(object):
         create_topic_cmd = "{0}/kafka_topic.sh create {1} {2} {3}".format(os.path.dirname(os.path.abspath(__file__)),self._topic,zk_conf,self._num_of_partitions)
 
         # execute create topic cmd
-       # Util.execute_cmd(create_topic_cmd,self._logger)
+        Util.execute_cmd(create_topic_cmd,self._logger)
 
     def send_message(self,message,topic_partition=None):
 

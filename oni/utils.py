@@ -56,8 +56,9 @@ class Util(object):
 		return  log
 
     @classmethod
-    def create_wathcher(cls,collector_path,new_file):
+    def create_wathcher(cls,collector_path,new_file,logger):
         
+        logger.info("Creating collector watcher")
         event_handler = new_file
         observer = Observer()
         observer.schedule(event_handler,collector_path)        
@@ -68,11 +69,11 @@ class Util(object):
     def execute_cmd(cls,command,logger):
         
         try:
-            logger.info("Executing: {0}".format(command))
+            logger.info("oni.Utils: Executing: {0}".format(command))
             subprocess.check_output(command,shell=True)
 
         except subprocess.CalledProcessError as e:
-            logger.error("There was an error executing: {0}".format(e.cmd))
+            logger.error("oni.Utils: There was an error executing: {0}".format(e.cmd))
             sys.exit(1)
 
     @classmethod
