@@ -6,6 +6,7 @@
 
 INGEST_TYPE=$1
 WORKERS_NUM=${2}
+TIME_ZONE=${3:-UTC}
 
 if [ -z $INGEST_TYPE  ]; then
 
@@ -36,13 +37,14 @@ fi
 INGEST_DATE=`date +"%H_%M_%S"`
 
 screen -d -m -S OniIngest_${INGEST_TYPE}_${INGEST_DATE}  -s /bin/bash
-screen -dr  OniIngest_${INGEST_TYPE}_${INGEST_DATE} -X screen -t Master sh -c "python master.py -t ${INGEST_TYPE} -w ${WORKERS_NUM} ; echo 'Closing Master...'; sleep 120"
+screen -S OniIngest_${INGEST_TYPE}_${INGEST_DATE} -X setenv TZ ${TIME_ZONE}
+screen -dr  OniIngest_${INGEST_TYPE}_${INGEST_DATE} -X screen -t Master sh -c "python master.py -t ${INGEST_TYPE} -w ${WORKERS_NUM} ; echo 'Closing Master...'; sleep 432000"
 
 if [ $WORKERS_NUM -gt 0 ]; then
 	w=0
     while [  $w -le  $((WORKERS_NUM-1)) ]; 
 	do
-		screen -dr OniIngest_${INGEST_TYPE}_${INGEST_DATE}  -X screen -t Worker_$w sh -c "python worker.py -t ${INGEST_TYPE} -i ${w} ; echo 'Closing worker...'; sleep 120"
+		screen -dr OniIngest_${INGEST_TYPE}_${INGEST_DATE}  -X screen -t Worker_$w sh -c "python worker.py -t ${INGEST_TYPE} -i ${w} ; echo 'Closing worker...'; sleep 432000"
 		let w=w+1
 	done
 fi
