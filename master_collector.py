@@ -20,7 +20,7 @@ def main():
     parser = argparse.ArgumentParser(description="Master Collector Ingest Daemon")
     parser.add_argument('-t','--type',dest='type',required=True,help='Type of data that will be ingested (e.g. dns, flow, proxy)',metavar='')
     parser.add_argument('-w','--workers',dest='workers_num',required=True,help='Number of workers for the ingest process',metavar='')
-    parser.add_argument('-id','--ingestId',dest='ingest_id',required=True,help='Ingest ID',metavar='')
+    parser.add_argument('-id','--ingestId',dest='ingest_id',required=False,help='Ingest ID',metavar='')
     args = parser.parse_args()
 
     # start collector based on data source type.
@@ -29,7 +29,7 @@ def main():
 def start_collector(type,workers_num,id=None):
 
     # generate ingest id
-    ingest_id = str(datetime.datetime.time(datetime.datetime.now())).replace(":","_").replace(".","_") if not id else id  
+    ingest_id = str(datetime.datetime.time(datetime.datetime.now())).replace(":","_").replace(".","_")
 
     # create logger.
     logger = Util.get_logger("ONI.INGEST")
@@ -52,7 +52,7 @@ def start_collector(type,workers_num,id=None):
     zk_server = master_conf["kafka"]['zookeper_server']
     zk_port = master_conf["kafka"]['zookeper_port']
 
-    topic = "{0}_{1}".format(type,ingest_id)    
+    topic = "{0}_{1}".format(type,ingest_id) if not id else id
     kafka = KafkaTopic(topic,k_server,k_port,zk_server,zk_port,workers_num)
 
     # create a collector instance based on data source type.

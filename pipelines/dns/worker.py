@@ -4,6 +4,7 @@ import logging
 import datetime
 import subprocess
 import json
+import os
 from multiprocessing import Process
 from oni.utils import Util
 
@@ -67,7 +68,7 @@ class Worker(object):
         Util.execute_cmd(process_cmd,self._logger)
 
         # create hdfs staging.
-        hdfs_path = "{0}/dns".format(self._app_path)
+        hdfs_path = "{0}/dns".format(self._hdfs_app_path)
         staging_timestamp = datetime.datetime.now().strftime('%M%S%f')[:-4]
         hdfs_staging_path =  "{0}/stage/{1}".format(hdfs_path,staging_timestamp)
         create_staging_cmd = "hadoop fs -mkdir -p {0}".format(hdfs_staging_path)
@@ -89,7 +90,7 @@ class Worker(object):
         Util.execute_cmd(mv_to_staging,self._logger)
 
         #load to avro
-        load_to_avro_cmd = "hive -hiveconf dbname={0} -hiveconf y={1} -hiveconf m={2} -hiveconf d={3} -hiveconf h={4} -hiveconf data_location='{5}' -f oni/dns/load_dns_avro_parquet.hql".format(self._db_name,binary_year,binary_month,binary_day,binary_hour,hdfs_staging_path)
+        load_to_avro_cmd = "hive -hiveconf dbname={0} -hiveconf y={1} -hiveconf m={2} -hiveconf d={3} -hiveconf h={4} -hiveconf data_location='{5}' -f pipelines/dns/load_dns_avro_parquet.hql".format(self._db_name,binary_year,binary_month,binary_day,binary_hour,hdfs_staging_path)
 
         self._logger.info("Loading data to hive: {0}".format(load_to_avro_cmd))
         Util.execute_cmd(load_to_avro_cmd,self._logger)

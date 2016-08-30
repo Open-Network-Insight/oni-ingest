@@ -12,7 +12,7 @@ DROP TABLE IF EXISTS ${hiveconf:dbname}.dns_tmp
 
 CREATE EXTERNAL TABLE ${hiveconf:dbname}.dns_tmp (
 frame_day STRING,
-frame_time STRING
+frame_time STRING,
 unix_tstamp BIGINT,
 frame_len INT,
 ip_src STRING,
@@ -48,7 +48,7 @@ TBLPROPERTIES ('avro.schema.literal'='{
 
 
 INSERT INTO TABLE ${hiveconf:dbname}.dns
-PARTITION (date_part_key=${hiveconf:date_part_key})
-SELECT   CONCAT(frame_day + frame_time) as treceived, unix_tstamp, frame_len, ip_dst, ip_src, dns_qry_name, dns_qry_class,dns_qry_type, dns_qry_rcode, dns_a 
+PARTITION (y=${hiveconf:y}, m=${hiveconf:m}, d=${hiveconf:d}, h=${hiveconf:h})
+SELECT   CONCAT(frame_day , frame_time) as treceived, unix_tstamp, frame_len, ip_dst, ip_src, dns_qry_name, dns_qry_class,dns_qry_type, dns_qry_rcode, dns_a 
 FROM ${hiveconf:dbname}.dns_tmp
 ;

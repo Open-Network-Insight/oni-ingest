@@ -49,11 +49,12 @@ class KafkaTopic(object):
         # execute create topic cmd
         Util.execute_cmd(create_topic_cmd,self._logger)
 
-    def send_message(self,message,topic_partition=None):
+    def send_message(self,message,topic_partition):
 
+        self._logger.info("Sending message to: Topic: {0} Partition:{1}".format(self._topic,topic_partition))
         kafka_brokers = '{0}:{1}'.format(self._server,self._port)             
         producer = KafkaProducer(bootstrap_servers=[kafka_brokers],api_version_auto_timeout_ms=3600000)
-        future = producer.send(self._topic,message,partition=0)
+        future = producer.send(self._topic,message,partition=topic_partition)
         producer.flush()
         producer.close()
 
