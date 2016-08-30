@@ -20,15 +20,16 @@ def main():
     parser = argparse.ArgumentParser(description="Master Collector Ingest Daemon")
     parser.add_argument('-t','--type',dest='type',required=True,help='Type of data that will be ingested (e.g. dns, flow, proxy)',metavar='')
     parser.add_argument('-w','--workers',dest='workers_num',required=True,help='Number of workers for the ingest process',metavar='')
+    parser.add_argument('-id','--ingestId',dest='ingest_id',required=True,help='Ingest ID',metavar='')
     args = parser.parse_args()
 
     # start collector based on data source type.
-    start_collector(args.type,args.workers_num)
+    start_collector(args.type,args.workers_num,args.ingest_id)
 
-def start_collector(type,workers_num):
+def start_collector(type,workers_num,id=None):
 
     # generate ingest id
-    ingest_id = str(datetime.datetime.time(datetime.datetime.now())).replace(":","_").replace(".","_")   
+    ingest_id = str(datetime.datetime.time(datetime.datetime.now())).replace(":","_").replace(".","_") if not id else id  
 
     # create logger.
     logger = Util.get_logger("ONI.INGEST")
