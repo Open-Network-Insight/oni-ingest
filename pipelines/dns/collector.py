@@ -83,27 +83,27 @@ class Collector(object):
             for file in files:
                 if file.endswith(".pcap") and "{0}_oni".format(name) in file:
                     
-                    # get kafka partition.
-                    partition = self._kafka_topic.Partition
+                        # get kafka partition.
+                        partition = self._kafka_topic.Partition
                     
-                    # get timestamp from the file name to build hdfs path.
- 					file_date = file.split('.')[0]
- 					pcap_hour = file_date[-6:-4]
- 					pcap_date_path = file_date[-14:-6]
+                        # get timestamp from the file name to build hdfs path.
+ 	                file_date = file.split('.')[0]
+ 			pcap_hour = file_date[-6:-4]
+ 			pcap_date_path = file_date[-14:-6]
 
-                    # hdfs path with timestamp.
- 					hdfs_path = "{0}/binary/{1}/{2}".format(self._hdfs_root_path,pcap_date_path,pcap_hour)
+                        # hdfs path with timestamp.
+ 			hdfs_path = "{0}/binary/{1}/{2}".format(self._hdfs_root_path,pcap_date_path,pcap_hour)
  						
- 					# create hdfs path.
- 					Util.creat_hdfs_folder(hdfs_path,self._logger)
+ 			# create hdfs path.
+ 			Util.creat_hdfs_folder(hdfs_path,self._logger)
  									
-  					# load file to hdfs.
-                    Util.load_to_hdfs(file,os.path.join(currdir,file),hdfs_path,self._logger)
-                    hadoop_pcap_file = "{0}/{1}".format(hdfs_path,file)
+  			# load file to hdfs.
+                        Util.load_to_hdfs(file,os.path.join(currdir,file),hdfs_path,self._logger)
+                        hadoop_pcap_file = "{0}/{1}".format(hdfs_path,file)
 
-                    # create event for workers to process the file.
-                    self._logger.info( "Sending split file to worker number: {0}".format(partition))
-                    self._kafka_topic.send_message(hadoop_pcap_file,partition)
+                        # create event for workers to process the file.
+                        self._logger.info( "Sending split file to worker number: {0}".format(partition))
+                        self._kafka_topic.send_message(hadoop_pcap_file,partition)
 
         self._logger.info("Removing file: {0}".format(file))
         rm_big_file = "rm {0}".format(file)       
