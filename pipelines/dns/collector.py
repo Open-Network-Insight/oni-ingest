@@ -63,13 +63,17 @@ class Collector(object):
             self._logger.info("-------------------------------------- New File detected --------------------------------------")        
             self._logger.info("File: {0}".format(file))
             
+
             # create new process for the new file.
-            p = Process(target=self._ingest_file, args=(file,))
-            p.start()            
+            partition = self._kafka_topic.Partition
+            p = Process(target=self._ingest_file, args=(file,partition,))
+            p.start()
+            p.join()          
 
-    def _ingest_file(self,file):
+    def _ingest_file(self,file,partition):
 
-        # # get file name and date.
+        # get file name and date.
+        org_file = file
         file_name_parts = file.split('/')
         file_name = file_name_parts[len(file_name_parts)-1]
 
@@ -81,11 +85,8 @@ class Collector(object):
 
         for currdir,subdir,files in os.walk(self._pcap_split_staging):
             for file in files:
-                if file.endswith(".pcap") and "{0}_oni".format(name) in file:
-                    
-                        # get kafka partition.
-                        partition = self._kafka_topic.Partition
-                    
+                if file.endswith(".pcap") and "{0}_oni".format(name) in file:      
+
                         # get timestamp from the file name to build hdfs path.
                         file_date = file.split('.')[0]
                         pcap_hour = file_date[-6:-4]
@@ -104,10 +105,10 @@ class Collector(object):
                         # create event for workers to process the file.
                         self._logger.info( "Sending split file to worker number: {0}".format(partition))
                         self._kafka_topic.send_message(hadoop_pcap_file,partition)
+                        self._logger.info("File {0} has been successfully sent to Kafka Topic to: {1}".format(file,self._kafka_topic.Topic))
+ 
 
-        self._logger.info("Removing file: {0}".format(file))
-        rm_big_file = "rm {0}".format(file)       
-        Util.execute_cmd(rm_big_file,self._logger)
-        
-        self._logger.info("File {0} has been successfully sent to Kafka Topic to: {1}".format(file,self._kafka_topic.Topic))
+        self._logger.info("Removing file: {0}".format(org_file))
+        rm_big_file = "rm {0}".format(org_file)       
+        Util.execute_cmd(rm_big_file,self._logger)    
 
