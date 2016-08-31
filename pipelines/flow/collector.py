@@ -62,10 +62,12 @@ class Collector(object):
         if not  ".current" in file:
             
             self._logger.info("Sending new file to kafka; topic: {0}".format(self._kafka_topic.Topic))
-            p = Process(target=self._ingest_file,args=(file,))
-            p.start()     
+            partition = self._kafka_topic.Partition
+            p = Process(target=self._ingest_file,args=(file,partition,))
+            p.start()
+            p.join()
 
-    def _ingest_file(self,file):
+    def _ingest_file(self,file,partition):
 
         # get file name and date.
         file_name_parts = file.split('/')
@@ -84,7 +86,6 @@ class Collector(object):
         Util.load_to_hdfs(file,hdfs_file,self._logger)
 
         # create event for workers to process the file.
-        partition = self._kafka_topic.Partition
         self._logger.info("Sending file to worker number: {0}".format(partition))
         self.kafka_topic.send_message(hdfs_file,partition)
 
