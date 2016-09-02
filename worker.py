@@ -3,30 +3,35 @@
 import argparse
 import os
 import json
+import logging
+import sys
+from oni.utils import Util
 from oni.kerberos import Kerberos
-import oni.message_broker as Kafka
+from oni.kafka_client import KafkaConsumer
 
 script_path = os.path.dirname(os.path.abspath(__file__))
-conf_file = "{0}/etc/worker.json".format(script_path)
+conf_file = "{0}/ingest_conf.json".format(script_path)
 worker_conf = json.loads(open (conf_file).read())
 
 def main():
 
     # input parameters
     parser = argparse.ArgumentParser(description="Worker Ingest Framework")
-    parser.add_argument('-t','--type',dest='type',required=True,help='Type of data that will be ingested (e.g. dns, flow)',metavar='')
+    parser.add_argument('-t','--type',dest='type',required=True,help='Type of data that will be ingested (e.g. dns, flow, proxy)',metavar='')
     parser.add_argument('-i','--id',dest='id',required=True,help='Worker Id, this is needed to sync Kafka and Ingest framework (Partition Number)',metavar='')
+    parser.add_argument('-top','--topic',dest='topic',required=True,help='Topic to read from.',metavar="")
     args = parser.parse_args()
 
     # start worker based on the type.
-    start_worker(args.type,args.id)
+    start_worker(args.type,args.topic,args.id)
 
 
-def start_worker(type,id):
+def start_worker(type,topic,id):
 
-    if not validate_data_source(type):
-        print "The provided data source {0} is not valid".format(type)
-        sys.exit(1)
+    logger = Util.get_logger("ONI.INGEST.WORKER")
+
+    if not Util.validate_data_source(type):
+        logger.error("The provided data source {0} is not valid".format(type));sys.exit(1)
 
     # validate if kerberos authentication is requiered.
     if os.getenv('KRB_AUTH'):
@@ -34,24 +39,28 @@ def start_worker(type,id):
         kb.authenticate()
 
     # create a worker instance based on the data source type.
-    module = __import__("oni.{0}.worker".format(type),fromlist=['Worker'])
+    module = __import__("pipelines.{0}.worker".format(type),fromlist=['Worker'])
 
     # create message broker consumer instance.
-    ip_server = worker_conf['message_broker']['ip_server']
-    port_server = worker_conf['message_broker']['port_server']
-    topic = worker_conf[type]['topic']
-    mb_consumer = Kafka.Consumer(ip_server,port_server,topic,id)
 
+    # kafka server info.
+    logger.info("Initializing kafka instance")
+    k_server = worker_conf["kafka"]['kafka_server']
+    k_port = worker_conf["kafka"]['kafka_port']
+
+    # required zookeeper info.
+    zk_server = worker_conf["kafka"]['zookeper_server']
+    zk_port = worker_conf["kafka"]['zookeper_port']
+    topic = topic
+
+    # create kafka consumer.
+    kafka_consumer = KafkaConsumer(topic,k_server,k_port,zk_server,zk_port,id)
 
     # start worker.
     db_name = worker_conf['dbname']
-    app_path = worker_conf['huser']
-    ingest_worker = module.Worker(worker_conf[type],db_name,app_path,mb_consumer)
+    app_path = worker_conf['hdfs_app_path']
+    ingest_worker = module.Worker(db_name,app_path,kafka_consumer)
     ingest_worker.start()
-
-def validate_data_source(type):
-    is_valid = True if type in worker_conf else False
-    return is_valid
 
 if __name__=='__main__':
     main()
