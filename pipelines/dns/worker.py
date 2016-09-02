@@ -75,15 +75,6 @@ class Worker(object):
         self._logger.info("Creating staging: {0}".format(create_staging_cmd))
         Util.execute_cmd(create_staging_cmd,self._logger)
 
-        # create csv folder in hdfs.
-        h_csv_path = "{0}/csv".format(hdfs_path)
-        create_folder_cmd = "hadoop fs -mkdir -p {0}/y={1}/m={2}/d={3}/h={4}".format(h_csv_path,binary_year,binary_month,binary_day,binary_hour)        
-        Util.execute_cmd(create_folder_cmd,self._logger)
-
-        # upload csv file to hdfs.
-        upld_cmd = "hadoop fs -put {0}{1}.csv {2}/y={3}/m={4}/d={5}/h={6}/.".format(self._local_staging,file_name,h_csv_path,binary_year,binary_month,binary_day,binary_hour)        
-        Util.execute_cmd(upld_cmd,self._logger)
-
         # move to stage.
         mv_to_staging ="hadoop fs -moveFromLocal {0}{1}.csv {2}/.".format(self._local_staging,file_name,hdfs_staging_path)
         self._logger.info("Moving data to staging: {0}".format(mv_to_staging))
