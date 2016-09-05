@@ -17,8 +17,7 @@ Ingest data is captured or transferred into the Hadoop cluster, where they are t
 * [spark-streaming-kafka-0-8-assembly_2.11](http://search.maven.org/#search|ga|1|a%3A%22spark-streaming-kafka-0-8-assembly_2.11%22%20AND%20v%3A%222.0.0%22)	 
 * Ingest user with sudo privileges (i.e. oni).This user will execute all the processes in the Ingest Framework also this user needs to have access to hdfs solution path (i.e. /user/oni/).
 
-### Configure Kafka
-**Adding Kafka Service:**
+### Add Kafka Service
 Ingest framework needs Kafka to work in real-time streaming. Add Kafka service using Cloudera Manager.
 
 **_NOTE: If you are using a Cloudera Manager version < 5.4.1 you will need to add the kafka parcel manually._**
@@ -26,19 +25,17 @@ Ingest framework needs Kafka to work in real-time streaming. Add Kafka service u
 ### Spark-Streaming Kafaka support.
 Download [spark-streaming-kafka-0-8-assembly_2.11](http://search.maven.org/#search|ga|1|a%3A%22spark-streaming-kafka-0-8-assembly_2.11%22%20AND%20v%3A%222.0.0%22). This jar adds support for **Spark Streaming + Kafka** and needs to be downloaded in the following path : **oni-ingest/oni**
 
-### Getting Started
-
-**Required Roles:**
+### Required Roles:
 
 The following roles are required in all the nodes where the Ingest Framework will be runing.
 * [HDFS getway (i.e. Edge Server)](https://hadoop.apache.org/docs/r2.4.1/hadoop-project-dist/hadoop-hdfs/HdfsNfsGateway.html)
 * Kafka Broker
 
-**Get the code:**
+### Get the code:
 
      git clone https://github.com/Open-Network-Insight/oni-ingest.git
 
-**Starting the Ingest**
+### Starting the Ingest
 
 _Standalone mode (master and workers in the same server):_
 
