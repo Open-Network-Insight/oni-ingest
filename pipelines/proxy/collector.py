@@ -26,14 +26,18 @@ class Collector(object):
         self._script_path = os.path.dirname(os.path.abspath(__file__))
 
         # read proxy configuration.
-        conf_file = "{0}/proxy_conf.json".format(self._script_path)
+        conf_file = "{0}/ingest_conf.json".format(os.path.dirname(os.path.dirname(self._script_path)))
+        self._conf = json.loads(open(conf_file).read())
+
+        # read proxy configuration.
+        conf_file = "{0}/proxy_conf.json".format(os.path.dirname(os.path.dirname(os.path.abspath(self._script_path)))
         self._conf = json.loads(open(conf_file).read())
 
         # get collector path.
         self._collector_path = self._conf['collector_path']
 
         # create collector watcher
-        self._watcher =  Util.create_wathcher(self._collector_path,NewFileEvent(self),self._logger)
+        #self._watcher =  Util.create_wathcher(self._collector_path,NewFileEvent(self),self._logger)
 
     def start(self):
         

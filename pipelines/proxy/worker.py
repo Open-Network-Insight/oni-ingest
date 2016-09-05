@@ -23,7 +23,7 @@ class Worker(object):
 
         # read proxy configuration.
         self._script_path = os.path.dirname(os.path.abspath(__file__))
-        conf_file = "{0}/proxy_conf.json".format(self._script_path)
+        conf_file = "{0}/ingest_conf.json".format(os.path.dirname(os.path.dirname(self._script_path)))
         self._conf = json.loads(open(conf_file).read())
         
     

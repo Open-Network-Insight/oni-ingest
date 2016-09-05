@@ -22,10 +22,14 @@ if [ -z $WORKERS_NUM ];then
 
 fi
 
+#-----------------------------------------------------------------------------------
+# Validate type (ingest conf).
+#-----------------------------------------------------------------------------------
+CONF_FILE="ingest_conf.json"
+CONF_ING=`cat "$CONF_FILE" | grep -w "\"${INGEST_TYPE}\":{"`
 
-if [ $INGEST_TYPE != "dns" ] && [ $INGEST_TYPE != "flow" ]  && [  $INGEST_TYPE != "proxy" ] ; then
-    
-    echo "Please provide a valid ingest type: flow|dns"
+if [ -z  $CONF_ING ]; then
+    echo "Provided type is not part of ${CONF_FILE}"
     exit 1
 
 fi
@@ -40,7 +44,7 @@ screen -d -m -S OniIngest_${INGEST_TYPE}_${INGEST_DATE}  -s /bin/bash
 screen -S OniIngest_${INGEST_TYPE}_${INGEST_DATE} -X setenv TZ ${TIME_ZONE}
 screen -dr  OniIngest_${INGEST_TYPE}_${INGEST_DATE} -X screen -t Master sh -c "python master_collector.py -t ${INGEST_TYPE} -w ${WORKERS_NUM} -id OniIngest_${INGEST_TYPE}_${INGEST_DATE}; echo 'Closing Master...'; sleep 432000"
 
-echo "Creating master collector"; sleep 3
+echo "Creating master collector"; sleep 2
 
 if [ $WORKERS_NUM -gt 0 ]; then
 	w=0
