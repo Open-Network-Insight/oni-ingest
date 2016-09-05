@@ -19,17 +19,17 @@ Ingest data is captured or transferred into the Hadoop cluster, where they are t
 
 ### Configure Kafka
 **Adding Kafka Service:**
-
 Ingest framework needs Kafka to work in real-time streaming. Add Kafka service using Cloudera Manager.
 
-**NOTE:** If you are using a Cloudera Manager version < 5.4.1 you will need to add the kafka parcel manually.
+**_NOTE: If you are using a Cloudera Manager version < 5.4.1 you will need to add the kafka parcel manually._**
 
 ### Spark-Streaming Kafaka support.
-Download [spark-streaming-kafka-0-8-assembly_2.11](http://search.maven.org/#search|ga|1|a%3A%22spark-streaming-kafka-0-8-assembly_2.11%22%20AND%20v%3A%222.0.0%22).This jar adds support for Spark Streaming + Kafka and needs to be downloaded in the following path : **oni-ingest/oni**
+Download [spark-streaming-kafka-0-8-assembly_2.11](http://search.maven.org/#search|ga|1|a%3A%22spark-streaming-kafka-0-8-assembly_2.11%22%20AND%20v%3A%222.0.0%22). This jar adds support for **Spark Streaming + Kafka** and needs to be downloaded in the following path : **oni-ingest/oni**
 
 ### Getting Started
 
-**Required Roles**
+**Required Roles:**
+
 The following roles are required in all the nodes where the Ingest Framework will be runing.
 * [HDFS getway (i.e. Edge Server)](https://hadoop.apache.org/docs/r2.4.1/hadoop-project-dist/hadoop-hdfs/HdfsNfsGateway.html)
 * Kafka Broker
@@ -40,11 +40,11 @@ The following roles are required in all the nodes where the Ingest Framework wil
 
 **Starting the Ingest**
 
-_Standalone:_
+_Standalone mode (master and workers in the same server):_
 
     bash start_standalone_ingest.sh "data type (flow|dns|proxy)" "num of workers"
 
-_Cluster:_
+_Cluster mode:_
 
 **Running Master:** Master needs to be run in the same server where the collector path is.
 
