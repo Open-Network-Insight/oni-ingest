@@ -2,7 +2,7 @@ Open-Network-Insight Ingest Framework
 ======
 Ingest data is captured or transferred into the Hadoop cluster, where they are transformed and loaded into solution data stores
 
-![Ingest Framework](docs/ONI_Ingest_Framework_1_1.png)
+![Ingest Framework](docs/ONI_Ingest_Framework1_1.png)
 
 ## Getting Started
 
