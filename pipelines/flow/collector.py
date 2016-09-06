@@ -10,11 +10,11 @@ from oni.utils import Util, NewFileEvent
 
 class Collector(object):
 
-    def __init__(self,hdfs_app_path,kafka_topic):
+    def __init__(self,hdfs_app_path,kafka_topic,conf_type):
         
-        self._initialize_members(hdfs_app_path,kafka_topic)
+        self._initialize_members(hdfs_app_path,kafka_topic,conf_type)
 
-    def _initialize_members(self,hdfs_app_path,kafka_topic):
+    def _initialize_members(self,hdfs_app_path,kafka_topic,conf_type):
   
         # getting parameters.
         self._logger = logging.getLogger('ONI.INGEST.FLOW')
@@ -26,10 +26,11 @@ class Collector(object):
 
         # read flow configuration.
         conf_file = "{0}/ingest_conf.json".format(os.path.dirname(os.path.dirname(self._script_path)))
-        self._conf = json.loads(open(conf_file).read())
+        conf = json.loads(open(conf_file).read())
+        self._conf = conf["pipelines"][conf_type]
 
         # set configuration.
-        self._collector_path = self._conf['collector_path']
+        self._collector_path = self._conf['collector_path']        
         self._dsource = 'flow'
         self._hdfs_root_path = "{0}/{1}".format(hdfs_app_path, self._dsource)        
 

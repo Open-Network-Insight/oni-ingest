@@ -28,14 +28,11 @@ fi
 CONF_FILE="ingest_conf.json"
 CONF_ING=`python -c "import json,sys;obj=json.loads(open('ingest_conf.json').read());print obj['pipelines']['${INGEST_CONF}'];"`
 
-if [ -z  $CONF_ING ]; then
+if [ -z  "$CONF_ING" ]; then
     echo "Provided type is not part of ${CONF_FILE}"
     exit 1
 
 fi
-
-INGEST_TYPE=`python -c "import json,sys;obj=json.loads(open('ingest_conf.json').read());print obj['pipelines']['${INGEST_CONF}']['type'];"`
-echo $INGEST_TYPE
 
 #-----------------------------------------------------------------------------------
 # Create screens for Master and Worker.
@@ -45,7 +42,7 @@ INGEST_DATE=`date +"%H_%M_%S"`
 
 screen -d -m -S OniIngest_${INGEST_CONF}_${INGEST_DATE}  -s /bin/bash
 screen -S OniIngest_${INGEST_CONF}_${INGEST_DATE} -X setenv TZ ${TIME_ZONE}
-screen -dr  OniIngest_${INGEST_CONF}_${INGEST_DATE} -X screen -t Master sh -c "python master_collector.py -t ${INGEST_TYPE} -w ${WORKERS_NUM} -id OniIngest_${INGEST_CONF}_${INGEST_DATE}; echo 'Closing Master...'; sleep 432000"
+screen -dr  OniIngest_${INGEST_CONF}_${INGEST_DATE} -X screen -t Master sh -c "python master_collector.py -t ${INGEST_CONF} -w ${WORKERS_NUM} -id OniIngest_${INGEST_CONF}_${INGEST_DATE}; echo 'Closing Master...'; sleep 432000"
 
 echo "Creating master collector"; sleep 2
 
@@ -54,7 +51,7 @@ if [ $WORKERS_NUM -gt 0 ]; then
     while [  $w -le  $((WORKERS_NUM-1)) ]; 
 	do
         echo "Creating worker_${w}"
-		screen -dr OniIngest_${INGEST_CONF}_${INGEST_DATE}  -X screen -t Worker_$w sh -c "python worker.py -t ${INGEST_TYPE} -i ${w} -top OniIngest_${INGEST_CONF}_${INGEST_DATE}; echo 'Closing worker...'; sleep 432000"
+		screen -dr OniIngest_${INGEST_CONF}_${INGEST_DATE}  -X screen -t Worker_$w sh -c "python worker.py -t ${INGEST_CONF} -i ${w} -top OniIngest_${INGEST_CONF}_${INGEST_DATE}; echo 'Closing worker...'; sleep 432000"
 		let w=w+1
         sleep 2
 	done

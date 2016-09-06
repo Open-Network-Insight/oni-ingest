@@ -11,11 +11,11 @@ import time
 
 class Collector(object):
     
-    def __init__(self,hdfs_app_path,kafka_topic):
+    def __init__(self,hdfs_app_path,kafka_topic,conf_type):
         
-        self._initialize_members(hdfs_app_path,kafka_topic)
+        self._initialize_members(hdfs_app_path,kafka_topic,conf_type)
         
-    def _initialize_members(self,hdfs_app_path,kafka_topic):
+    def _initialize_members(self,hdfs_app_path,kafka_topic,conf_type):
         
         # getting parameters.
         self._logger = logging.getLogger('ONI.INGEST.PROXY')
@@ -27,17 +27,14 @@ class Collector(object):
 
         # read proxy configuration.
         conf_file = "{0}/ingest_conf.json".format(os.path.dirname(os.path.dirname(self._script_path)))
-        self._conf = json.loads(open(conf_file).read())
-
-        # read proxy configuration.
-        conf_file = "{0}/proxy_conf.json".format(os.path.dirname(os.path.dirname(os.path.abspath(self._script_path)))
-        self._conf = json.loads(open(conf_file).read())
+        conf = json.loads(open(conf_file).read())
+        self._conf = conf["pipelines"][conf_type]
 
         # get collector path.
         self._collector_path = self._conf['collector_path']
 
         # create collector watcher
-        #self._watcher =  Util.create_wathcher(self._collector_path,NewFileEvent(self),self._logger)
+        self._watcher =  Util.create_wathcher(self._collector_path,NewFileEvent(self),self._logger)
 
     def start(self):
         
