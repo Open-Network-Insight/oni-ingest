@@ -30,21 +30,19 @@ def start_collector(type,workers_num,id=None):
 
     # generate ingest id
     ingest_id = str(datetime.datetime.time(datetime.datetime.now())).replace(":","_").replace(".","_")
+    print master_conf["pipelines"][type]
 
     # create logger.
     logger = Util.get_logger("ONI.INGEST")
 
-    # read configuration type.
-    type_conf = json.loads(open("ingest_conf.json").read())
-
     # validate the given configuration exists in ingest_conf.json.
-    if not type in type_conf["pipelines"]:
+    if not type in master_conf["pipelines"]:
         logger.error("'{0}' type is not a valid configuration.".format(type));
         sys.exit(1)
 
     # validate the type is a valid module.
-    if not Util.validate_data_source(type_conf["pipelines"][type]["type"]):
-        logger.error("'{0}' type is not configured. Please check you ingest conf file".format(type_conf["pipelines"][type]["type"]));
+    if not Util.validate_data_source(master_conf["pipelines"][type]["type"]):
+        logger.error("'{0}' type is not configured. Please check you ingest conf file".format(master_conf["pipelines"][type]["type"]));
         sys.exit(1)
     
     # validate if kerberos authentication is required.
@@ -61,12 +59,12 @@ def start_collector(type,workers_num,id=None):
     zk_server = master_conf["kafka"]['zookeper_server']
     zk_port = master_conf["kafka"]['zookeper_port']
          
-    topic = "{0}_{1}".format(type_conf["pipelines"][type],ingest_id) if not id else id
+    topic = "{0}_{1}".format(type,ingest_id) if not id else id
     kafka = KafkaTopic(topic,k_server,k_port,zk_server,zk_port,workers_num)
 
     # create a collector instance based on data source type.
     logger.info("Starting {0} ingest instance".format(topic))
-    module = __import__("pipelines.{0}.collector".format(type_conf["pipelines"][type]["type"]),fromlist=['Collector'])
+    module = __import__("pipelines.{0}.collector".format(master_conf["pipelines"][type]["type"]),fromlist=['Collector'])
 
     # start collector.
     ingest_collector = module.Collector(master_conf['hdfs_app_path'],kafka,type)

@@ -30,7 +30,13 @@ def start_worker(type,topic,id):
 
     logger = Util.get_logger("ONI.INGEST.WORKER")
 
-    if not Util.validate_data_source(type):
+    # validate the given configuration exists in ingest_conf.json.
+    if not type in worker_conf["pipelines"]:
+        logger.error("'{0}' type is not a valid configuration.".format(type));
+        sys.exit(1)
+
+    # validate the type is a valid module.
+    if not Util.validate_data_source(worker_conf["pipelines"][type]["type"]):
         logger.error("The provided data source {0} is not valid".format(type));sys.exit(1)
 
     # validate if kerberos authentication is requiered.
@@ -39,9 +45,7 @@ def start_worker(type,topic,id):
         kb.authenticate()
 
     # create a worker instance based on the data source type.
-    module = __import__("pipelines.{0}.worker".format(type),fromlist=['Worker'])
-
-    # create message broker consumer instance.
+    module = __import__("pipelines.{0}.worker".format(worker_conf["pipelines"][type]["type"]),fromlist=['Worker'])
 
     # kafka server info.
     logger.info("Initializing kafka instance")
@@ -59,7 +63,7 @@ def start_worker(type,topic,id):
     # start worker.
     db_name = worker_conf['dbname']
     app_path = worker_conf['hdfs_app_path']
-    ingest_worker = module.Worker(db_name,app_path,kafka_consumer)
+    ingest_worker = module.Worker(db_name,app_path,kafka_consumer,type)
     ingest_worker.start()
 
 if __name__=='__main__':
