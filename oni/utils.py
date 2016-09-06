@@ -24,20 +24,20 @@ class Util(object):
     @classmethod
     def load_to_hdfs(cls,file_local_path,file_hdfs_path,logger):
         # move file to hdfs.
-        load_to_hadoop_script = "hadoop fs -moveFromLocal {0} {1}".format(file_local_path,file_hdfs_path)        
+        load_to_hadoop_script = "hadoop fs -moveFromLocal {0} {1}".format(file_local_path,file_hdfs_path)
         logger.info("oni.Utils: Loading file to hdfs: {0}".format(load_to_hadoop_script))
         subprocess.call(load_to_hadoop_script,shell=True)
 
     @classmethod
     def get_logger(cls,logger_name,create_file=False):
-    		
+
 		# create logger for prd_ci
 		log = logging.getLogger(logger_name)
 		log.setLevel(level=logging.INFO)
-		
+
 		# create formatter and add it to the handlers
 		formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-		
+
 		if create_file:
 				# create file handler for logger.
 				fh = logging.FileHandler('oni.log')
@@ -56,18 +56,18 @@ class Util(object):
 		return  log
 
     @classmethod
-    def create_wathcher(cls,collector_path,new_file,logger):
-        
+    def create_watcher(cls,collector_path,new_file,logger):
+
         logger.info("Creating collector watcher")
         event_handler = new_file
         observer = Observer()
-        observer.schedule(event_handler,collector_path)        
+        observer.schedule(event_handler,collector_path)
 
         return observer
 
     @classmethod
     def execute_cmd(cls,command,logger):
-        
+
         try:
             logger.info("oni.Utils: Executing: {0}".format(command))
             subprocess.call(command,shell=True)
@@ -81,7 +81,7 @@ class Util(object):
         dirs = os.walk("{0}/pipelines/".format(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))).next()[1]
         is_type_ok = True if pipeline_type in dirs else False
         return is_type_ok
-        
+
 
 class NewFileEvent(FileSystemEventHandler):
 
