@@ -30,8 +30,7 @@ def start_collector(type,workers_num,id=None):
 
     # generate ingest id
     ingest_id = str(datetime.datetime.time(datetime.datetime.now())).replace(":","_").replace(".","_")
-    print master_conf["pipelines"][type]
-
+    
     # create logger.
     logger = Util.get_logger("ONI.INGEST")
 

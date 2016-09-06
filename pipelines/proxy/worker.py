@@ -37,8 +37,8 @@ class Worker(object):
 
         # spark job command.
         spark_job_cmd = ("spark-submit --master yarn"
-                        " --jars {0}/spark-streaming-kafka-0-8-assembly_2.11-2.0.0.jar"
-                        " {0}oni/{1} {2} {3}".format(os.path.dirname(os.path.dirname(self._script_path)),parser,self._kafka_consumer.ZookeperServer,self._kafka_consumer.Topic))
+                        " --jars {0}/oni/spark-streaming-kafka-0-8-assembly_2.11-2.0.0.jar"
+                        " {1}/{2} {3} {4}".format(os.path.dirname(os.path.dirname(self._script_path)),self._script_path,parser,self._kafka_consumer.ZookeperServer,self._kafka_consumer.Topic))
 
         
         # start spark job.
