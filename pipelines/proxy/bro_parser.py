@@ -70,7 +70,7 @@ def proxy_parser(pl):
 
     return proxy_parsed_data
 
-def save_to_hive(rdd,sqc,db,db_table):
+def save_to_hive(rdd,sqc,db,db_table,topic):
     
     if not rdd.isEmpty(): 
 
@@ -118,7 +118,7 @@ def save_to_hive(rdd,sqc,db,db_table):
         df.write.saveAsTable(hive_table,format="parquet",mode="append",partitionBy=('y','m','d','h'))       
 
     else:        
-        print("LISTENING KAFKA TOPIC:{0}")
+        print("LISTENING KAFKA TOPIC:{0}".format(topic))
 
 def bro_parse(zk,topic,db,db_table):
     
@@ -131,7 +131,7 @@ def bro_parse(zk,topic,db,db_table):
     # create stream from kafka
     kvs = KafkaUtils.createStream(ssc, zk, app_name, {topic: 1},keyDecoder=oni_decoder,valueDecoder=oni_decoder)
     lines = kvs.map(lambda x: proxy_parser(x[1]))
-    lines.foreachRDD(lambda x: save_to_hive(x,sqc,db,db_table))
+    lines.foreachRDD(lambda x: save_to_hive(x,sqc,db,db_table,topic))
     ssc.start()
     ssc.awaitTermination()
 
