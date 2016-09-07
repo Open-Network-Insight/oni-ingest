@@ -40,9 +40,9 @@ fi
 
 INGEST_DATE=`date +"%H_%M_%S"`
 
-screen -d -m -S OniIngest_${INGEST_CONF}_${INGEST_DATE}  -s /bin/bash
-screen -S OniIngest_${INGEST_CONF}_${INGEST_DATE} -X setenv TZ ${TIME_ZONE}
-screen -dr  OniIngest_${INGEST_CONF}_${INGEST_DATE} -X screen -t Master sh -c "python master_collector.py -t ${INGEST_CONF} -w ${WORKERS_NUM} -id OniIngest_${INGEST_CONF}_${INGEST_DATE}; echo 'Closing Master...'; sleep 432000"
+screen -d -m -S ONI-INGEST-${INGEST_CONF}-${INGEST_DATE}  -s /bin/bash
+screen -S ONI-INGEST-${INGEST_CONF}-${INGEST_DATE} -X setenv TZ ${TIME_ZONE}
+screen -dr  ONI-INGEST-${INGEST_CONF}-${INGEST_DATE} -X screen -t Master sh -c "python master_collector.py -t ${INGEST_CONF} -w ${WORKERS_NUM} -id ONI-INGEST-${INGEST_CONF}-${INGEST_DATE}; echo 'Closing Master...'; sleep 432000"
 
 echo "Creating master collector"; sleep 2
 
@@ -51,7 +51,7 @@ if [ $WORKERS_NUM -gt 0 ]; then
     while [  $w -le  $((WORKERS_NUM-1)) ]; 
 	do
         echo "Creating worker_${w}"
-		screen -dr OniIngest_${INGEST_CONF}_${INGEST_DATE}  -X screen -t Worker_$w sh -c "python worker.py -t ${INGEST_CONF} -i ${w} -top OniIngest_${INGEST_CONF}_${INGEST_DATE}; echo 'Closing worker...'; sleep 432000"
+		screen -dr ONI-INGEST-${INGEST_CONF}-${INGEST_DATE}  -X screen -t Worker_$w sh -c "python worker.py -t ${INGEST_CONF} -i ${w} -top ONI-INGEST-${INGEST_CONF}-${INGEST_DATE}; echo 'Closing worker...'; sleep 432000"
 		let w=w+1
         sleep 2
 	done
@@ -60,7 +60,7 @@ fi
 #-----------------------------------------------------------------------------------
 # show outputs.
 #-----------------------------------------------------------------------------------
-echo "Background ingest process is running: OniIngest_${INGEST_CONF}_${INGEST_DATE}"
-echo "To rejoin the session use: screen -x OniIngest_${INGEST_CONF}_${INGEST_DATE}"
+echo "Background ingest process is running: ONI-INGEST-${INGEST_CONF}-${INGEST_DATE}"
+echo "To rejoin the session use: screen -x ONI-INGEST-${INGEST_CONF}-${INGEST_DATE}"
 echo 'To switch between workers and master use: crtl a + "'
 

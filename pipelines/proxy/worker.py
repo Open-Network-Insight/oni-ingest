@@ -26,19 +26,21 @@ class Worker(object):
         conf_file = "{0}/ingest_conf.json".format(os.path.dirname(os.path.dirname(self._script_path)))
         conf = json.loads(open(conf_file).read())
         self._conf = conf["pipelines"][conf_type]
-        
-    
+        self._db = conf["dbname"]
+
+
     def start(self):
 
         self._logger.info("Creating Spark Job for topic: {0}".format(self._kafka_consumer.Topic))                
 
         # parser
         parser = self._conf["parser"]
+        
 
         # spark job command.
         spark_job_cmd = ("spark-submit --master yarn"
                         " --jars {0}/oni/spark-streaming-kafka-0-8-assembly_2.11-2.0.0.jar"
-                        " {1}/{2} {3} {4}".format(os.path.dirname(os.path.dirname(self._script_path)),self._script_path,parser,self._kafka_consumer.ZookeperServer,self._kafka_consumer.Topic))
+                        " {1}/{2} {3} {4}".format(os.path.dirname(os.path.dirname(self._script_path)),self._script_path,parser,self._kafka_consumer.ZookeperServer,self._kafka_consumer.Topic,self._db,"proxy"))
 
         
         # start spark job.
