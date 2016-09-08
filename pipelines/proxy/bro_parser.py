@@ -118,20 +118,26 @@ def save_to_hive(rdd,sqc,db,db_table,topic):
         df.write.saveAsTable(hive_table,format="parquet",mode="append",partitionBy=('y','m','d','h'))       
 
     else:        
-        print("LISTENING KAFKA TOPIC:{0}".format(topic))
+        print("------------------------LISTENING KAFKA TOPIC:{0}------------------------".format(topic))
 
 def bro_parse(zk,topic,db,db_table):
     
     app_name = "ONI-INGEST-{0}".format(topic)
  	# create spark context
     sc = SparkContext(appName=app_name)
-    ssc = StreamingContext(sc, 1)
+    ssc = StreamingContext(sc,1)
     sqc = HiveContext(sc)
 
-    # create stream from kafka
-    kvs = KafkaUtils.createStream(ssc, zk, app_name, {topic: 1},keyDecoder=oni_decoder,valueDecoder=oni_decoder)
-    lines = kvs.map(lambda x: proxy_parser(x[1]))
-    lines.foreachRDD(lambda x: save_to_hive(x,sqc,db,db_table,topic))
+    # create DStream for each topic partition.
+    topic_dstreams = [ KafkaUtils.createStream(ssc, zk, app_name, {topic: 1}, keyDecoder=oni_decoder, valueDecoder=oni_decoder) for _ in range (numStreams)  ] 
+    tp_stream = ssc.union(*topic_dstreams)
+
+    # parse the RDD content.
+    proxy_logs = tp_stream.map(lambda x: proxy_parser(x[1]))
+
+    # save RDD into hive .
+    proxy_logs.foreachRDD(lambda x: save_to_hive(x,sqc,db,db_table,topic))
+
     ssc.start()
     ssc.awaitTermination()
 
