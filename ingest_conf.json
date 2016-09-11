@@ -5,7 +5,8 @@
             "kafka_server":"kafka ip",
             "kafka_port":"kafka port",
             "zookeper_server":"zk ip",
-            "zookeper_port":"zk port"
+            "zookeper_port":"zk port",
+            "message_size":999999
         },
     "pipelines":{
         "flow":{
