@@ -82,5 +82,7 @@ class Collector(object):
                     message = ""
             # send the last package.
             self._kafka_topic.send_message(message,kafka_topci.Partition)
+        rm_file = "rm {0}".format(file)
+        Util.execute_cmd(rm_file,self._logger)
         self._logger.info("File {0} has been successfully sent to Kafka Topic:{1}".format(file,self._kafka_topic.Topic))
 
