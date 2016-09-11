@@ -134,7 +134,7 @@ def bro_parse(zk,topic,db,db_table,num_of_workers):
     tp_stream = ssc.union(*topic_dstreams)
 
     # Parallelism in Data Processing
-    processingDStream = tp_stream(num_of_workers)
+    processingDStream = tp_stream(int(num_of_workers))
 
     # parse the RDD content.
     proxy_logs = tp_stream.map(lambda x: proxy_parser(x[1]))
