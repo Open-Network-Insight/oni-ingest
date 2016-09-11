@@ -44,7 +44,8 @@ class Worker(object):
                         "-zk {3} " 
                         "-t {4} "
                         "-db {5} "
-                        "-dt {6} ".format(os.path.dirname(os.path.dirname(self._script_path)),self._script_path,parser,self._kafka_consumer.ZookeperServer,self._kafka_consumer.Topic,self._db,"proxy"))
+                        "-dt {6} " 
+                        "-w {7}".format(os.path.dirname(os.path.dirname(self._script_path)),self._script_path,parser,self._kafka_consumer.ZookeperServer,self._kafka_consumer.Topic,self._db,"proxy",))
 
         
         # start spark job.

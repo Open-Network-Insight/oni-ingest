@@ -19,10 +19,11 @@ def main():
     parser.add_argument('-t','--topic',dest='topic',required=True,help='Topic to listen for Spark Streaming',metavar='')
     parser.add_argument('-db','--database',dest='db',required=True,help='Hive database whete the data will be ingested',metavar='')
     parser.add_argument('-dt','--db-table',dest='db_table',required=True,help='Hive table whete the data will be ingested',metavar='')
+    parser.add_argument('-w','--num_of_workers',dest='num_of_workers',required=True,help='Num of workers for Parallelism in Data Processing',metavar='')
     args = parser.parse_args()
 
     # start collector based on data source type.
-    bro_parse(args.zk,args.topic,args.db,args.db_table)
+    bro_parse(args.zk,args.topic,args.db,args.db_table,args.num_of_workers)
 
 
 def oni_decoder(s):
@@ -120,7 +121,7 @@ def save_to_hive(rdd,sqc,db,db_table,topic):
     else:        
         print("------------------------LISTENING KAFKA TOPIC:{0}------------------------".format(topic))
 
-def bro_parse(zk,topic,db,db_table):
+def bro_parse(zk,topic,db,db_table,num_of_workers):
     
     app_name = "ONI-INGEST-{0}".format(topic)
  	# create spark context
@@ -129,7 +130,7 @@ def bro_parse(zk,topic,db,db_table):
     sqc = HiveContext(sc)
 
     # create DStream for each topic partition.
-    topic_dstreams = [ KafkaUtils.createStream(ssc, zk, app_name, {topic: 1}, keyDecoder=oni_decoder, valueDecoder=oni_decoder) for _ in range (numStreams)  ] 
+    topic_dstreams = [ KafkaUtils.createStream(ssc, zk, app_name, {topic: 1}, keyDecoder=oni_decoder, valueDecoder=oni_decoder) for _ in range (num_of_workers)  ] 
     tp_stream = ssc.union(*topic_dstreams)
 
     # parse the RDD content.
