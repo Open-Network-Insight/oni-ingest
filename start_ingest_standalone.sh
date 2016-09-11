@@ -10,7 +10,7 @@ TIME_ZONE=${3:-UTC}
 
 if [ -z $INGEST_CONF  ]; then
 
-    echo "Please provide an ingest type (e.g. flow|dns|proxy)"
+    echo "Please provide an ingest type (pipeline configuration)"
     exit 1
 
 fi
@@ -27,6 +27,7 @@ fi
 #-----------------------------------------------------------------------------------
 CONF_FILE="ingest_conf.json"
 CONF_ING=`python -c "import json,sys;obj=json.loads(open('ingest_conf.json').read());print obj['pipelines']['${INGEST_CONF}'];"`
+TYPE=`python -c "import json,sys;obj=json.loads(open('ingest_conf.json').read());print obj['pipelines']['${INGEST_CONF}']['type'];"`
 
 if [ -z  "$CONF_ING" ]; then
     echo "Provided type is not part of ${CONF_FILE}"
@@ -48,13 +49,23 @@ echo "Creating master collector"; sleep 2
 
 if [ $WORKERS_NUM -gt 0 ]; then
 	w=0
-    while [  $w -le  $((WORKERS_NUM-1)) ]; 
-	do
+
+    if [ $TYPE == "proxy" ]; 
+    then
         echo "Creating worker_${w}"
-		screen -dr ONI-INGEST-${INGEST_CONF}-${INGEST_DATE}  -X screen -t Worker_$w sh -c "python worker.py -t ${INGEST_CONF} -i ${w} -top ONI-INGEST-${INGEST_CONF}-${INGEST_DATE}; echo 'Closing worker...'; sleep 432000"
-		let w=w+1
-        sleep 2
-	done
+        screen -dr ONI-INGEST-${INGEST_CONF}-${INGEST_DATE} -X screen -t Worker_$w sh -c "python worker.py -t ${INGEST_CONF} -i ${w} -top ONI-INGEST-${INGEST_CONF}-${INGEST_DATE} -p ${WORKERS_NUM}; echo 'Closing worker...'; sleep 432000"
+    
+    else
+        while [  $w -le  $((WORKERS_NUM-1)) ]; 
+	    do
+            echo "Creating worker_${w}"
+		    screen -dr ONI-INGEST-${INGEST_CONF}-${INGEST_DATE}  -X screen -t Worker_$w sh -c "python worker.py -t ${INGEST_CONF} -i ${w} -top ONI-INGEST-${INGEST_CONF}-${INGEST_DATE}; echo 'Closing worker...'; sleep 432000"
+		    let w=w+1
+            sleep 2
+	    done
+
+    fi
+  
 fi
 
 #-----------------------------------------------------------------------------------

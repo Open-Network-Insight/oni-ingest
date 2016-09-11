@@ -17,16 +17,17 @@ def main():
 
     # input parameters
     parser = argparse.ArgumentParser(description="Worker Ingest Framework")
-    parser.add_argument('-t','--type',dest='type',required=True,help='Type of data that will be ingested (e.g. dns, flow, proxy)',metavar='')
+    parser.add_argument('-t','--type',dest='type',required=True,help='Type of data that will be ingested (Pipeline Configuration)',metavar='')
     parser.add_argument('-i','--id',dest='id',required=True,help='Worker Id, this is needed to sync Kafka and Ingest framework (Partition Number)',metavar='')
     parser.add_argument('-top','--topic',dest='topic',required=True,help='Topic to read from.',metavar="")
+    parser.add_argument('-p','--processingParallelism',dest='processes',required=False,help='Processing Parallelism',metavar="")
     args = parser.parse_args()
 
     # start worker based on the type.
-    start_worker(args.type,args.topic,args.id)
+    start_worker(args.type,args.topic,args.id,args.processes)
 
 
-def start_worker(type,topic,id):
+def start_worker(type,topic,id,processes=None):
 
     logger = Util.get_logger("ONI.INGEST.WORKER")
 
@@ -63,7 +64,7 @@ def start_worker(type,topic,id):
     # start worker.
     db_name = worker_conf['dbname']
     app_path = worker_conf['hdfs_app_path']
-    ingest_worker = module.Worker(db_name,app_path,kafka_consumer,type)
+    ingest_worker = module.Worker(db_name,app_path,kafka_consumer,type,processes)
     ingest_worker.start()
 
 if __name__=='__main__':
