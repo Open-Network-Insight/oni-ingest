@@ -24,7 +24,12 @@ Ingest framework needs Kafka to work in real-time streaming. Add Kafka service u
 
 **NOTE:** If you are using a Cloudera Manager version < 5.4.1 you will need to add the kafka parcel manually.
 
-### Spark-Streaming Kafaka support.
+Ingest module uses a default configuration for the message size (999999 bytes), if you modify this size in the ingest configuration file you need to modify the following configuration properties in kafka:
+
+* message.max.bytes
+* replica.fetch.max.bytes
+
+### Spark-Streaming Kafka support.
 Download [spark-streaming-kafka-0-8-assembly_2.11](http://search.maven.org/#search|ga|1|a%3A%22spark-streaming-kafka-0-8-assembly_2.11%22%20AND%20v%3A%222.0.0%22). This jar adds support for Spark Streaming + Kafka and needs to be downloaded in the following path : **oni-ingest/oni**
 
 ### Getting Started
