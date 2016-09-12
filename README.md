@@ -90,7 +90,7 @@ _Running on a Cluster Mode:_
 
     python master_collector.py -t "pipeline_configuration" -w "number of workers"
     
-**Running Workers:** Worker needs to be executed in a server where processing program is installed (i.e. nfdump), also the worker needs to be identified with a specific id, this id needs to start with 0.
+**Running Workers:** Worker needs to be executed in a server where the required processing program installed (i.e. nfdump), also the worker needs to be identified with a specific id, this id needs to start with 0.
 
 example:
 
