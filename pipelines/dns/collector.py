@@ -58,6 +58,10 @@ class Collector(object):
             self._watcher.stop()
             self._watcher.join()
 
+            # remove kafka topic
+            rm_kafka_topic = Util.remove_kafka_topic(self._kafka_topic.Zookeeper,self._kafka_topic.Topic)
+            Util.execute_cmd()
+
     def new_file_detected(self,file):
 
         if not  ".current" in file and file.endswith(".pcap"):

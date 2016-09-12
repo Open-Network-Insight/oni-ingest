@@ -8,6 +8,17 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
 class Util(object):
+    
+    @classmethod
+    def remove_kafka_topic(cls,zk,topic,logger):
+        rm_kafka_topic = "kafka-topics --delete --zookeeper {0} --topic {1}".format(zk,topic)
+        try:
+            logger.info("oni.Utils: Executing: {0}".format(rm_kafka_topic))
+            subprocess.call(rm_kafka_topic,shell=True)
+
+        except subprocess.CalledProcessError as e:
+            logger.error("oni.Utils: There was an error executing: {0}".format(e.cmd))
+            sys.exit(1)
 
     @classmethod
     def validate_parameter(cls,parameter,message,logger):
