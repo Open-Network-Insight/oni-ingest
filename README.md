@@ -20,9 +20,7 @@ Ingest data is captured or transferred into the Hadoop cluster, where they are t
 ### Configure Kafka
 **Adding Kafka Service:**
 
-Ingest framework needs Kafka to work in real-time streaming. Add Kafka service using Cloudera Manager.
-
-**NOTE:** If you are using a Cloudera Manager version < 5.4.1 you will need to add the kafka parcel manually.
+Ingest framework needs Kafka to work in real-time streaming. Add Kafka service using Cloudera Manager. If you are using a Cloudera Manager version < 5.4.1 you will need to add the kafka parcel manually.
 
 Ingest module uses a default configuration for the message size (999999 bytes), if you modify this size in the ingest configuration file you need to modify the following configuration properties in kafka:
 
