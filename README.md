@@ -76,7 +76,7 @@ The file **ingest_conf.json** contains all the required configuration to start t
 
 **Starting the Ingest**
 
-_Running on a Standalone Mode:_
+_Running in a Standalone Mode:_
 
     bash start_standalone_ingest.sh "pipeline_configuration" "num of workers"
     
@@ -84,7 +84,7 @@ Following the previous configuration example starting ingest module in a stand a
 
     bash start_standalone_ingest.sh flow_internals 4
 
-_Running on a Cluster Mode:_
+_Running in a Cluster Mode:_
 
 **Running Master:** Master needs to be run in the same server where the collector path is.
 
