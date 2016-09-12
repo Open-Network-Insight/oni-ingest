@@ -34,7 +34,7 @@ Download [spark-streaming-kafka-0-8-assembly_2.11](http://search.maven.org/#sear
 
 **Required Roles**
 The following roles are required in all the nodes where the Ingest Framework will be runing.
-* [HDFS getway (i.e. Edge Server)](https://hadoop.apache.org/docs/r2.4.1/hadoop-project-dist/hadoop-hdfs/HdfsNfsGateway.html)
+* [HDFS gateway (i.e. Edge Server)](https://hadoop.apache.org/docs/r2.4.1/hadoop-project-dist/hadoop-hdfs/HdfsNfsGateway.html)
 * Kafka Broker
 
 **Get the code:**
