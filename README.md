@@ -47,7 +47,7 @@ The file **ingest_conf.json** contains all the required configuration to start t
 *  **dbname:** Name of HIVE database where all the ingested data will be stored in avro-parquet format.
 *  **hdfs_app_path:** Application path in HDFS where the pipelines will be stored (i.e /user/_application_user_/). 
 *  **kafka:** Kafka and Zookeeper server information required to create/listen topics and partitions.
-*  **pipelines:** In this section you can add multiple configurations for either the same pipeline or different pipelines. The configuration name must be lowercase without spaces(i.e. flow_internals).
+*  **pipelines:** In this section you can add multiple configurations for either the same pipeline or different pipelines. The configuration name must be lowercase without spaces (i.e. flow_internals).
 
 **Configuration example:**
 
