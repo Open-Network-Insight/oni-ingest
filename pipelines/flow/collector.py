@@ -53,10 +53,9 @@ class Collector(object):
             self._logger.info("Stopping FLOW collector...")
             self._watcher.stop()
             self._watcher.join()
-            
+
             # remove kafka topic
-            rm_kafka_topic = Util.remove_kafka_topic(self._kafka_topic.Zookeeper,self._kafka_topic.Topic)
-            Util.execute_cmd()
+            Util.remove_kafka_topic(self._kafka_topic.Zookeeper,self._kafka_topic.Topic,self._logger)
 
     def new_file_detected(self,file):
 
