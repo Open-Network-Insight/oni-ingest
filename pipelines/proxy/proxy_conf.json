@@ -1,6 +1,0 @@
-
-{    
-    "collector_path":"/repos/oni-ingest/stage/tmp",
-    "supported_files":["log"],
-    "parser":"bro_parser.py"    
-}

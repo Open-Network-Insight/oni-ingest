@@ -11,11 +11,11 @@ from oni.utils import Util
 
 class Worker(object):
 
-    def __init__(self,db_name,hdfs_app_path,kafka_consumer):
+    def __init__(self,db_name,hdfs_app_path,kafka_consumer,conf_type):
         
-        self._initialize_members(db_name,hdfs_app_path,kafka_consumer)
+        self._initialize_members(db_name,hdfs_app_path,kafka_consumer,conf_type)
 
-    def _initialize_members(self,db_name,hdfs_app_path,kafka_consumer):
+    def _initialize_members(self,db_name,hdfs_app_path,kafka_consumer,conf_type):
 
         # get logger instance.
         self._logger = Util.get_logger('ONI.INGEST.WRK.DNS')
@@ -25,8 +25,9 @@ class Worker(object):
 
         # read proxy configuration.
         self._script_path = os.path.dirname(os.path.abspath(__file__))
-        conf_file = "{0}/dns_conf.json".format(self._script_path)
-        self._conf = json.loads(open(conf_file).read())
+        conf_file = "{0}/ingest_conf.json".format(os.path.dirname(os.path.dirname(self._script_path)))
+        conf = json.loads(open(conf_file).read())
+        self._conf = conf["pipelines"][conf_type] 
 
         self._process_opt = self._conf['process_opt']
         self._local_staging = self._conf['local_staging']
