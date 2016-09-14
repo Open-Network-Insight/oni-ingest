@@ -28,6 +28,7 @@ class Collector(object):
         # read proxy configuration.
         conf_file = "{0}/ingest_conf.json".format(os.path.dirname(os.path.dirname(self._script_path)))
         conf = json.loads(open(conf_file).read())
+        self._message_size = conf["kafka"]["message_size"]
         self._conf = conf["pipelines"][conf_type]
 
         # get collector path.
@@ -77,8 +78,8 @@ class Collector(object):
 
             for line in f:
                 message += line
-                if len(message) > 999999:
-                    self._kafka_topic.send_message(message,kafka_topci.Partition)
+                if len(message) > self._message_size:
+                    self._kafka_topic.send_message(message,self._kafka_topic.Partition)
                     message = ""
             # send the last package.
             self._kafka_topic.send_message(message,kafka_topci.Partition)
