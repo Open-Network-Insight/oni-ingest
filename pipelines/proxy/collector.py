@@ -66,7 +66,7 @@ class Collector(object):
         if file.endswith(tuple(supported_files)):
 
             self._logger.info("Sending new file to kafka; topic: {0}".format(self._kafka_topic.Topic))            
-            p = Process(target=self._ingest_file,args=(file,self._kafka_topic,))
+            p = Process(target=self._ingest_file,args=(file,))
             p.start()
             p.join()
 
@@ -75,7 +75,7 @@ class Collector(object):
             self._logger.warning("File won't be ingested")
 
 
-    def _ingest_file(self,file,kafka_topci):
+    def _ingest_file(self,file):
 
         message = ""
         with open(file,"rb") as f:
@@ -86,7 +86,7 @@ class Collector(object):
                     self._kafka_topic.send_message(message,self._kafka_topic.Partition)
                     message = ""
             # send the last package.
-            self._kafka_topic.send_message(message,kafka_topci.Partition)
+            self._kafka_topic.send_message(message,self._kafka_topic.Partition)
         rm_file = "rm {0}".format(file)
         Util.execute_cmd(rm_file,self._logger)
         self._logger.info("File {0} has been successfully sent to Kafka Topic:{1}".format(file,self._kafka_topic.Topic))
