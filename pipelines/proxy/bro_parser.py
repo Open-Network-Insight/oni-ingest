@@ -1,19 +1,29 @@
-from __future__ import print_function
 
-import sys
+import argparse
+import re
+import shlex
 
 from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
-
 from pyspark.sql import HiveContext
 from pyspark.sql.types import *
 
+rex_date = re.compile("\d{4}-\d{2}-\d{2}")
 
-import re
-import shlex
+def main():
+    
+    # input Parameters
+    parser = argparse.ArgumentParser(description="Bro Parser")
+    parser.add_argument('-zk','--zookeeper',dest='zk',required=True,help='Zookeeper IP and port (i.e. 10.0.0.1:2181)',metavar='')
+    parser.add_argument('-t','--topic',dest='topic',required=True,help='Topic to listen for Spark Streaming',metavar='')
+    parser.add_argument('-db','--database',dest='db',required=True,help='Hive database whete the data will be ingested',metavar='')
+    parser.add_argument('-dt','--db-table',dest='db_table',required=True,help='Hive table whete the data will be ingested',metavar='')
+    parser.add_argument('-w','--num_of_workers',dest='num_of_workers',required=True,help='Num of workers for Parallelism in Data Processing',metavar='')
+    args = parser.parse_args()
 
-message = ""
+    # start collector based on data source type.
+    bro_parse(args.zk,args.topic,args.db,args.db_table,args.num_of_workers)
 
 
 def oni_decoder(s):
@@ -31,7 +41,7 @@ def split_log_entry(line):
     return list(lex)
 
 def proxy_parser(pl):
-
+    
     proxy_parsed_data = []
     proxy_log_rows = pl.split("\n")
 
@@ -61,9 +71,8 @@ def proxy_parser(pl):
 
     return proxy_parsed_data
 
-
-def print_RDD(rdd,sqc):
-
+def save_to_hive(rdd,sqc,db,db_table,topic):
+    
     if not rdd.isEmpty(): 
 
         proxy_schema = StructType([
@@ -104,31 +113,39 @@ def print_RDD(rdd,sqc):
         df = sqc.createDataFrame(rdd.collect()[0],proxy_schema)
         df.show()
         sqc.setConf("hive.exec.dynamic.partition", "true")
-        sqc.setConf("hive.exec.dynamic.partition.mode", "nonstrict")         
-        df.write.saveAsTable("onidb.proxy",format="parquet",mode="append",partitionBy=('y','m','d','h'))       
+        sqc.setConf("hive.exec.dynamic.partition.mode", "nonstrict")
 
-    else:
-        print("Vacio\n")
+        hive_table = "{0}.{1}".format(db,db_table)         
+        df.write.saveAsTable(hive_table,format="parquet",mode="append",partitionBy=('y','m','d','h'))       
 
-if __name__ == "__main__":
+    else:        
+        print("------------------------LISTENING KAFKA TOPIC:{0}------------------------".format(topic))
 
-    rex_date = re.compile("\d{4}-\d{2}-\d{2}")
-
-    if len(sys.argv) != 3:
-        print("Usage: kafka_wordcount.py <zk> <topic>", file=sys.stderr)
-        exit(-1)
-	
-    # get zp parameter.
-    zkQuorum, topic = sys.argv[1:]
+def bro_parse(zk,topic,db,db_table,num_of_workers):
+    
+    app_name = "ONI-INGEST-{0}".format(topic)
+    wrks = int(num_of_workers)
 
  	# create spark context
-    sc = SparkContext(appName="ONI-Ingest-{0}".format(topic))
-    ssc = StreamingContext(sc, 1)
+    sc = SparkContext(appName=app_name)
+    ssc = StreamingContext(sc,1)
     sqc = HiveContext(sc)
 
-    # create stream from kafka
-    kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 1},keyDecoder=oni_decoder,valueDecoder=oni_decoder)
-    lines = kvs.map(lambda x: proxy_parser(x[1]))
-    lines.foreachRDD(lambda x: print_RDD(x,sqc))
+    # create DStream for each topic partition.
+    topic_dstreams = [ KafkaUtils.createStream(ssc, zk, app_name, {topic: 1}, keyDecoder=oni_decoder, valueDecoder=oni_decoder) for _ in range (wrks)  ] 
+    tp_stream = ssc.union(*topic_dstreams)
+
+    # Parallelism in Data Processing
+    #processingDStream = tp_stream(wrks)
+
+    # parse the RDD content.
+    proxy_logs = tp_stream.map(lambda x: proxy_parser(x[1]))
+
+    # save RDD into hive .
+    proxy_logs.foreachRDD(lambda x: save_to_hive(x,sqc,db,db_table,topic))
+
     ssc.start()
     ssc.awaitTermination()
+
+if __name__ =='__main__':
+    main()

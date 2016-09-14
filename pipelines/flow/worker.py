@@ -12,7 +12,7 @@ from oni.utils import Util
 
 class Worker(object):
 
-    def __init__(self,db_name,hdfs_app_path,kafka_consumer,conf_type):
+    def __init__(self,db_name,hdfs_app_path,kafka_consumer,conf_type,processes=None):
         self._initialize_members(db_name,hdfs_app_path,kafka_consumer,conf_type)
 
     def _initialize_members(self,db_name,hdfs_app_path,kafka_consumer,conf_type):
