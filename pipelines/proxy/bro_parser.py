@@ -60,9 +60,9 @@ def proxy_parser(pl):
             full_uri= "{0}{1}{2}".format(proxy_fields[15],proxy_uri_path,proxy_uri_qry)
             date = proxy_fields[0].split('-')
             year =  date[0]
-            month = date[1]
-            day = date[2]
-            hour = proxy_fields[1].split(":")[0]
+            month = date[1].zfill(2)
+            day = date[2].zfill(2)
+            hour = proxy_fields[1].split(":")[0].zfill(2)
 
             # re-order fields. 
             proxy_parsed_data.append((proxy_fields[0],proxy_fields[1],proxy_fields[3],proxy_fields[15],proxy_fields[12],proxy_fields[20],proxy_fields[13],int(proxy_fields[2]),proxy_fields[4],
