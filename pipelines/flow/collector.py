@@ -54,6 +54,9 @@ class Collector(object):
             self._watcher.stop()
             self._watcher.join()
 
+            # remove kafka topic
+            Util.remove_kafka_topic(self._kafka_topic.Zookeeper,self._kafka_topic.Topic,self._logger)
+
     def new_file_detected(self,file):
 
         self._logger.info("-------------------------------------- New File detected --------------------------------------")

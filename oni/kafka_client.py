@@ -66,6 +66,11 @@ class KafkaTopic(object):
     def Partition(self):        
         return self._partitioner.partition(self._topic).partition
 
+    @property
+    def Zookeeper(self):
+        zk = "{0}:{1}".format(self._zk_server,self._zk_port)
+        return zk
+
 
 
 class KafkaConsumer(object):
