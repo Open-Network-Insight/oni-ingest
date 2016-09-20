@@ -22,18 +22,19 @@ Ingest data is captured or transferred into the Hadoop cluster, where they are t
 
 Ingest framework needs Kafka to work in real-time streaming. Add Kafka service using Cloudera Manager. If you are using a Cloudera Manager version < 5.4.1 you will need to add the kafka parcel manually.
 
-Ingest module uses a default configuration for the message size (999999 bytes), if you modify this size in the ingest configuration file you need to modify the following configuration properties in kafka:
+Ingest module uses a default configuration for the message size (999999 bytes), if you modify this size in the ingest configuration file you will need to modify the following configuration properties in kafka:
 
 * message.max.bytes
 * replica.fetch.max.bytes
 
 ### Spark-Streaming Kafka support.
-Download [spark-streaming-kafka-0-8-assembly_2.11](http://search.maven.org/#search|ga|1|a%3A%22spark-streaming-kafka-0-8-assembly_2.11%22%20AND%20v%3A%222.0.0%22). This jar adds support for Spark Streaming + Kafka and needs to be downloaded in the following path : **oni-ingest/oni**
+Download the following jar file: [spark-streaming-kafka-0-8-assembly_2.11](http://search.maven.org/#search|ga|1|a%3A%22spark-streaming-kafka-0-8-assembly_2.11%22%20AND%20v%3A%222.0.0%22). This jar adds support for Spark Streaming + Kafka and needs to be downloaded on the following path : **oni-ingest/oni** (with the same name)
 
 ### Getting Started
 
 **Required Roles**
-The following roles are required in all the nodes where the Ingest Framework will be runing.
+
+The following roles are required in all the nodes where the Ingest Framework will be running.
 * [HDFS gateway (i.e. Edge Server)](https://hadoop.apache.org/docs/r2.4.1/hadoop-project-dist/hadoop-hdfs/HdfsNfsGateway.html)
 * Kafka Broker
 
@@ -51,6 +52,15 @@ The file **ingest_conf.json** contains all the required configuration to start t
 
 **Configuration example:**
 
+      "dbname" : "database name",
+      "hdfs_app_path" : "hdfs application path",
+      "kafka":{
+            "kafka_server":"kafka ip",
+            "kafka_port":"kafka port",
+            "zookeper_server":"zk ip",
+            "zookeper_port":"zk port",
+            "message_size":999999
+       },
       "pipelines":{
       
          "flow_internals":{
