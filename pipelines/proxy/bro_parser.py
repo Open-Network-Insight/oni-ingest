@@ -132,11 +132,7 @@ def bro_parse(zk,topic,db,db_table,num_of_workers):
     sqc = HiveContext(sc)
 
     # create DStream for each topic partition.
-    topic_dstreams = [ KafkaUtils.createStream(ssc, zk, app_name, {topic: 1}, keyDecoder=oni_decoder, valueDecoder=oni_decoder) for _ in range (wrks)  ] 
-    tp_stream = ssc.union(*topic_dstreams)
-
-    # Parallelism in Data Processing
-    #processingDStream = tp_stream(wrks)
+    tp_stream = KafkaUtils.createStream(ssc, zk, app_name, {topic: wrks}, keyDecoder=oni_decoder, valueDecoder=oni_decoder)
 
     # parse the RDD content.
     proxy_logs = tp_stream.map(lambda x: proxy_parser(x[1]))

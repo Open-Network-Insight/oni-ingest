@@ -55,7 +55,7 @@ class KafkaTopic(object):
         kafka_brokers = '{0}:{1}'.format(self._server,self._port)             
         producer = KafkaProducer(bootstrap_servers=[kafka_brokers],api_version_auto_timeout_ms=3600000)
         future = producer.send(self._topic,message,partition=topic_partition)
-        producer.flush()
+        producer.flush(timeout=3600000)
         producer.close()
 
     @property
