@@ -6,8 +6,11 @@ import os
 import sys
 import copy
 from oni.utils import Util, NewFileEvent
-from multiprocessing import Process
+from multiprocessing import Pool, Process
+from oni.file_collector import FileWatcher
 import time
+
+
 
 class Collector(object):
     
@@ -34,60 +37,66 @@ class Collector(object):
         # get collector path.
         self._collector_path = self._conf['collector_path']
 
+        #get supported files
+        self._supported_files = self._conf['supported_files']
+
         # create collector watcher
-        self._watcher =  Util.create_watcher(self._collector_path,NewFileEvent(self),self._logger)
+        self._watcher = FileWatcher(self._collector_path,self._supported_files)
+
+        # Multiprocessing. 
+        self._processes = 5
+        self._ingestion_interval = 5
+        self._pool = Pool(processes=self._processes) 
+
 
     def start(self):
 
-        self._logger.info("Starting PROXY ingest")
-        self._logger.info("Watching: {0}".format(self._collector_path))
+        self._logger.info("Starting PROXY INGEST")
         self._watcher.start()
-
+   
         try:
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            self._logger.info("Stopping PROXY collector...")
+            while True:         
+                if self._watcher.HasFiles: self._process_files()
+                time.sleep(self._ingestion_interval)                   
+
+        except KeyboardInterrupt:  
+                  
+            self._logger.info("Stopping Proxy collector...")           
             self._watcher.stop()
-            self._watcher.join()
+            Util.remove_kafka_topic(self._kafka_topic.Zookeeper,self._kafka_topic.Topic,self._logger)   
 
-            # remove kafka topic
-            Util.remove_kafka_topic(self._kafka_topic.Zookeeper,self._kafka_topic.Topic,self._logger)
-     
+    def _process_files(self):        
+        
+        kafka_client = self._kafka_topic
+        logger = self._logger
+        msg_size = self._message_size
+        p_list = []
 
-
-    def new_file_detected(self,file):
-
-        self._logger.info("-------------------------------------- New File detected --------------------------------------")
-        self._logger.info("File: {0}".format(file))
-
-        # get supported file extensions from configuration file.
-        supported_files = self._conf['supported_files']
-        if file.endswith(tuple(supported_files)):
-
-            self._logger.info("Sending new file to kafka; topic: {0}".format(self._kafka_topic.Topic))            
+        for x in range(1,self._processes):
+            file = self._watcher.GetNextFile()  
             p = Process(target=self._ingest_file,args=(file,))
             p.start()
-            p.join()
-
-        else:
-            self._logger.warning("File extension not supported: {0}".format(file))
-            self._logger.warning("File won't be ingested")
-
+            p_list.append(p)         
+            if  not self._watcher.HasFiles: break
+        
+        for process in p_list:process.join()
 
     def _ingest_file(self,file):
 
+        self._logger.info("Ingesting new file") 
+        self._logger.info("Sending new file to kafka; topic: {0}".format(self._kafka_topic.Topic)) 
         message = ""
         with open(file,"rb") as f:
 
             for line in f:
                 message += line
-                if len(message) > self._message_size:
-                    self._kafka_topic.send_message(message,self._kafka_topic.Partition)
+                if len(message) > self._message_size:                    
+                    kafka_client.send_message(message,self._kafka_topic.Partition)
                     message = ""
-            # send the last package.
+
+            #send the last package.
             self._kafka_topic.send_message(message,self._kafka_topic.Partition)
         rm_file = "rm {0}".format(file)
-        Util.execute_cmd(rm_file,self._logger)
+        Util.execute_cmd(rm_file,logger)
         self._logger.info("File {0} has been successfully sent to Kafka Topic:{1}".format(file,self._kafka_topic.Topic))
 
