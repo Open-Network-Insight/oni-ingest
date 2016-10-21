@@ -6,7 +6,7 @@ import os
 import sys
 import copy
 from oni.utils import Util, NewFileEvent
-from multiprocessing import Pool, Process
+from multiprocessing import Process
 from oni.file_collector import FileWatcher
 import time
 
@@ -65,13 +65,9 @@ class Collector(object):
             self._watcher.stop()
             Util.remove_kafka_topic(self._kafka_topic.Zookeeper,self._kafka_topic.Topic,self._logger)   
 
-    def _process_files(self):        
+    def _process_files(self):       
         
-        kafka_client = self._kafka_topic
-        logger = self._logger
-        msg_size = self._message_size
         p_list = []
-
         for x in range(1,self._processes):
             file = self._watcher.GetNextFile()  
             p = Process(target=self._ingest_file,args=(file,))
@@ -83,19 +79,19 @@ class Collector(object):
 
     def _ingest_file(self,file):
 
-        self._logger.info("Ingesting new file") 
-        self._logger.info("Sending new file to kafka; topic: {0}".format(self._kafka_topic.Topic)) 
+        self._logger.info("Ingesting file: {0} , using process: {1}".format(file,os.getpid()))
+
         message = ""
         with open(file,"rb") as f:
 
             for line in f:
                 message += line
                 if len(message) > self._message_size:                    
-                    kafka_client.send_message(message,self._kafka_topic.Partition)
+                    self._kafka_topic.send_message(message,self._kafka_topic.Partition,log_message=False)
                     message = ""
 
             #send the last package.
-            self._kafka_topic.send_message(message,self._kafka_topic.Partition)
+            self._kafka_topic.send_message(message,self._kafka_topic.Partition,log_message=False)
         rm_file = "rm {0}".format(file)
         Util.execute_cmd(rm_file,logger)
         self._logger.info("File {0} has been successfully sent to Kafka Topic:{1}".format(file,self._kafka_topic.Topic))
