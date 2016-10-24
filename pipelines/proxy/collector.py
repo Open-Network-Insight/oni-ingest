@@ -6,11 +6,10 @@ import os
 import sys
 import copy
 from oni.utils import Util, NewFileEvent
-from multiprocessing import Process
+from oni.kafka_client import KafkaTopic
+from multiprocessing import Pool
 from oni.file_collector import FileWatcher
 import time
-
-
 
 class Collector(object):
     
@@ -23,7 +22,12 @@ class Collector(object):
         # getting parameters.
         self._logger = logging.getLogger('ONI.INGEST.PROXY')
         self._hdfs_app_path = hdfs_app_path
-        self._kafka_topic = kafka_topic
+        self._kafka_se= kafka_topic
+
+        self._kafka_conf = {}
+        self._kafka_conf['servers'] = kafka_topic.BootstrapServers
+        self._kafka_conf['topic'] = kafka_topic.Topic
+        print self._kafka_conf
 
         # get script path
         self._script_path = os.path.dirname(os.path.abspath(__file__))
@@ -46,53 +50,60 @@ class Collector(object):
         # Multiprocessing. 
         self._processes = 5
         self._ingestion_interval = 5
-        self._pool = Pool(processes=self._processes) 
-
+        self._pool = Pool(processes=self._processes)
 
     def start(self):
 
         self._logger.info("Starting PROXY INGEST")
-        self._watcher.start()
-   
+        self._watcher.start()   
+    
         try:
-            while True:         
-                if self._watcher.HasFiles: self._process_files()
-                time.sleep(self._ingestion_interval)                   
-
-        except KeyboardInterrupt:  
-                  
-            self._logger.info("Stopping Proxy collector...")           
+            while True:
+                #self._ingest_files()
+                self._ingest_files_pool()              
+                time.sleep(self._ingestion_interval)
+        except KeyboardInterrupt:
+            self._logger.info("Stopping Proxy collector...")  
+            Util.remove_kafka_topic(self._kafka_topic.Zookeeper,self._kafka_topic.Topic,self._logger)          
             self._watcher.stop()
-            Util.remove_kafka_topic(self._kafka_topic.Zookeeper,self._kafka_topic.Topic,self._logger)   
+            self._pool.terminate()
+            self._pool.close()            
+            self._pool.join()
+             
 
-    def _process_files(self):       
-        
-        p_list = []
-        for x in range(1,self._processes):
-            file = self._watcher.GetNextFile()  
-            p = Process(target=self._ingest_file,args=(file,))
-            p.start()
-            p_list.append(p)         
-            if  not self._watcher.HasFiles: break
-        
-        for process in p_list:process.join()
+    def _ingest_files_pool(self,):
+            
+       
+        if self._watcher.HasFiles:
+            
+            for x in range(0,self._processes):
+                file = self._watcher.GetNextFile()
+                resutl = self._pool.apply_async(ingest_file,args=(file,self._message_size,self._kafka_topic.Topic,self._kafka_topic.BootstrapServers))
+                #resutl.get() # to debug add try and catch.
+                if  not self._watcher.HasFiles: break    
+        return True
 
-    def _ingest_file(self,file):
 
-        self._logger.info("Ingesting file: {0} , using process: {1}".format(file,os.getpid()))
-
+def ingest_file(file,message_size,topic,kafka_servers):
+    
+    logger = logging.getLogger('ONI.INGEST.PROXY.{0}'.format(os.getpid()))
+    try:        
         message = ""
+        logger.info("Ingesting file: {0} process:{1}".format(file,os.getpid())) 
         with open(file,"rb") as f:
-
             for line in f:
                 message += line
-                if len(message) > self._message_size:                    
-                    self._kafka_topic.send_message(message,self._kafka_topic.Partition,log_message=False)
+                if len(message) > message_size:
+                    KafkaTopic.SendMessage(message,kafka_servers,topic,0)
                     message = ""
-
             #send the last package.
-            self._kafka_topic.send_message(message,self._kafka_topic.Partition,log_message=False)
+            print kafka_servers
+            KafkaTopic.SendMessage(message,kafka_servers,topic,0)
+            #U.send_message(message,self._kafka_topic.Partition,log_message=False)
         rm_file = "rm {0}".format(file)
         Util.execute_cmd(rm_file,logger)
-        self._logger.info("File {0} has been successfully sent to Kafka Topic:{1}".format(file,self._kafka_topic.Topic))
+        #logger.info("File {0} has been successfully sent to Kafka Topic:{1}".format(file,self._kafka_topic.Topic))
+        logger.info("File {0} has been successfully sent to Kafka Topic:".format(file))
 
+    except Exception as err:
+        logger.error("There was a problem, please check the following error message:{0}".format(err.message))

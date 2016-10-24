@@ -111,7 +111,6 @@ def save_to_hive(rdd,sqc,db,db_table,topic):
 
 
         df = sqc.createDataFrame(rdd.collect()[0],proxy_schema)
-        df.show()
         sqc.setConf("hive.exec.dynamic.partition", "true")
         sqc.setConf("hive.exec.dynamic.partition.mode", "nonstrict")
 
