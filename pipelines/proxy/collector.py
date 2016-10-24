@@ -22,7 +22,7 @@ class Collector(object):
         # getting parameters.
         self._logger = logging.getLogger('ONI.INGEST.PROXY')
         self._hdfs_app_path = hdfs_app_path
-        self._kafka_se= kafka_topic
+        self._kafka_topic= kafka_topic
 
         self._kafka_conf = {}
         self._kafka_conf['servers'] = kafka_topic.BootstrapServers
